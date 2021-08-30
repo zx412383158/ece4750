@@ -11,6 +11,7 @@ from pymtl      import *
 from pclib.test import mk_test_case_table, run_sim
 from pclib.test import TestSource, TestSink
 
+from lab1_imul.ReqMsg     import ReqMsg
 from lab1_imul.IntMulFL   import IntMulFL
 
 #-------------------------------------------------------------------------
@@ -25,9 +26,9 @@ class TestHarness (Model):
 
     # Instantiate models
 
-    s.src  = TestSource ( Bits(64), src_msgs,  src_delay  )
+    s.src  = TestSource ( ReqMsg(32), src_msgs,  src_delay  )
     s.imul = imul
-    s.sink = TestSink   ( Bits(32), sink_msgs, sink_delay )
+    s.sink = TestSink   ( Bits(32),   sink_msgs, sink_delay )
 
     # Dump VCD
 
@@ -57,9 +58,9 @@ class TestHarness (Model):
 #-------------------------------------------------------------------------
 
 def req( a, b ):
-  msg = Bits( 64 )
-  msg[32:64] = Bits( 32, a, trunc=True )
-  msg[ 0:32] = Bits( 32, b, trunc=True )
+  msg = ReqMsg(32)
+  msg.a = a
+  msg.b = b
   return msg
 
 def resp( a ):
@@ -77,35 +78,89 @@ small_pos_pos_msgs = [
   req(  8,  7 ), resp(  56 ),
 ]
 
-# ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Define additional lists of request/response messages to create
-# additional directed and random test cases.
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+small_neg_pos_msgs = [
+  req( -1,  1 ), resp(  -1  ),
+  req( -2,  4 ), resp(  -8  ),
+  req( -8,  8 ), resp(  -64 ),
+  req( -16, 10), resp( -160 ),
+]
+
+small_pos_neg_msgs = [
+  req( 1,  -1 ), resp(  -1  ),
+  req( 2,  -4 ), resp(  -8  ),
+  req( 8,  -8 ), resp(  -64 ),
+  req( 16, -10), resp( -160 ),
+]
+
+small_neg_neg_msgs = [
+  req( -1,  -1 ), resp(  1  ),
+  req( -2,  -4 ), resp(  8  ),
+  req( -8,  -8 ), resp(  64 ),
+  req( -128, -64), resp( 8192 ),
+]
+
+large_pos_pos_msgs = [
+  req( 0x0fffffff,   0x64 ), resp( 0x3fffff9c ),
+  req( 0x0fffffff,  0x160 ), resp( 0xfffffea0 ),
+  req( 0x0fffffff, 0x1314 ), resp( 0x3fffecec ),
+]
+
+large_neg_pos_msgs = [
+  req( 0xffffffff,   0x64 ), resp( 0xffffff9c ),
+  req( 0xffffffff,  0x160 ), resp( 0xfffffea0 ),
+  req( 0xffffffff, 0x1314 ), resp( 0xffffecec ),
+]
+
+LSB_masked_msg = [
+  req( 0xffffffff, 0xffffff00 ), resp( 0x00000100 ),
+  req( 0xffffffff, 0xffff0000 ), resp( 0x00010000 ),
+  req( 0xffffffff, 0xff000000 ), resp( 0x01000000 ),
+]
+
+Mid_masked_msg = [
+  req( 0xffffffff, 0xffff00ff ), resp( 0x0000ff01 ),
+  req( 0xffffffff, 0xff0000ff ), resp( 0x00ffff01 ),
+  req( 0xffffffff, 0xff00ffff ), resp( 0x00ff0001 ),
+]
+
+#-------------------------------------------------------------------------
+# Test Case: random
+#-------------------------------------------------------------------------
+
+random.seed(0xdeadbeef)
+random_msgs = []
+for i in xrange(50):
+  a = random.randint(0, 0xffffffff)
+  b = random.randint(0, 0xffffffff)
+  c = a * b
+  random_msgs.extend([req(a, b), resp(c)])
+
 
 #-------------------------------------------------------------------------
 # Test Case Table
 #-------------------------------------------------------------------------
 
 test_case_table = mk_test_case_table([
-  (                      "msgs                 src_delay sink_delay"),
-  [ "small_pos_pos",     small_pos_pos_msgs,   0,        0          ],
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to leverage the additional lists
-  # of request/response messages defined above, but also to test
-  # different source/sink random delays.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+    ("msgs                            src_delay sink_delay"),
+    ["small_pos_pos",     small_pos_pos_msgs,   0,        0],
+    ["small_neg_pos",     small_neg_pos_msgs,   0,        0],
+    ["small_pos_neg",     small_pos_neg_msgs,   0,        0],
+    ["small_neg_neg",     small_neg_neg_msgs,   0,        0],
+    ["large_pos_pos",     large_pos_pos_msgs,   0,        0],
+    ["large_neg_pos",     large_neg_pos_msgs,   0,        0],
+    ["LSB_masked   ",     LSB_masked_msg,       0,        0],
+    ["Mid_masked   ",     Mid_masked_msg,       0,        0],
+    ["random       ",     random_msgs,          0,        0],
 ])
 
 #-------------------------------------------------------------------------
 # Test cases
 #-------------------------------------------------------------------------
 
-@pytest.mark.parametrize( **test_case_table )
-def test( test_params, dump_vcd ):
-  run_sim( TestHarness( IntMulFL(),
-                        test_params.msgs[::2], test_params.msgs[1::2],
-                        test_params.src_delay, test_params.sink_delay ),
-           dump_vcd )
+
+@pytest.mark.parametrize(**test_case_table)
+def test(test_params, dump_vcd):
+  run_sim(TestHarness(IntMulFL(),
+                      test_params.msgs[::2], test_params.msgs[1::2],
+                      test_params.src_delay, test_params.sink_delay))
 

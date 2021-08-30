@@ -49,5 +49,6 @@ before_script:
 #------------------------------------------------------------------------
 
 script:
- - py.test --verbose ../lab5_mcore
+ - py.test --verbose ../lab1_imul
+#  - py.test --verbose ../lab5_mcore
 

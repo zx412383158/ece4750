@@ -6,7 +6,7 @@
 # 'verilog' if you are using Verilog for your RTL design (i.e., your
 # design is in IntMulBaseVRTL).
 
-rtl_language = 'pymtl'
+rtl_language = 'verilog'
 
 #-------------------------------------------------------------------------
 # Do not edit below this line
@@ -16,6 +16,8 @@ rtl_language = 'pymtl'
 
 from pymtl        import *
 from pclib.ifcs   import InValRdyBundle, OutValRdyBundle
+
+from ReqMsg     import ReqMsg
 
 class IntMulBaseVRTL( VerilogModel ):
 
@@ -30,7 +32,7 @@ class IntMulBaseVRTL( VerilogModel ):
 
     # Interface
 
-    s.req   = InValRdyBundle  ( Bits(64) )
+    s.req   = InValRdyBundle  ( ReqMsg(32) )
     s.resp  = OutValRdyBundle ( Bits(32) )
 
     # Verilog ports
@@ -51,14 +53,14 @@ class IntMulBaseVRTL( VerilogModel ):
 # See if the course staff want to force testing a specific RTL language
 # for their own testing.
 
-import sys
-if hasattr( sys, '_called_from_test' ):
+# import sys
+# if hasattr( sys, '_called_from_test' ):
 
-  import pytest
-  if pytest.config.getoption('prtl'):
-    rtl_language = 'pymtl'
-  elif pytest.config.getoption('vrtl'):
-    rtl_language = 'pymtl'
+#   import pytest
+#   if pytest.config.getoption('prtl'):
+#     rtl_language = 'pymtl'
+#   elif pytest.config.getoption('vrtl'):
+#     rtl_language = 'pymtl'
 
 # Import the appropriate version based on the rtl_language variable
 
@@ -69,4 +71,3 @@ elif rtl_language == 'verilog':
 
 else:
   raise Exception("Invalid RTL language!")
-

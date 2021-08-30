@@ -6,6 +6,8 @@ from pymtl      import *
 from pclib.ifcs import InValRdyBundle, OutValRdyBundle
 from pclib.fl   import InValRdyQueueAdapterFL, OutValRdyQueueAdapterFL
 
+from ReqMsg     import ReqMsg
+
 class IntMulFL( Model ):
 
   # Constructor
@@ -14,8 +16,8 @@ class IntMulFL( Model ):
 
     # Interface
 
-    s.req    = InValRdyBundle  ( Bits(64) )
-    s.resp   = OutValRdyBundle ( Bits(32) )
+    s.req    = InValRdyBundle  ( ReqMsg(32) )
+    s.resp   = OutValRdyBundle ( Bits(32)   )
 
     # Adapters
 
@@ -27,7 +29,7 @@ class IntMulFL( Model ):
     @s.tick_fl
     def block():
       req_msg = s.req_q.popleft()
-      result = Bits( 32, req_msg[32:64] * req_msg[0:32], trunc=True )
+      result = Bits( 32, req_msg.a * req_msg.b, trunc=True )
       s.resp_q.append( result )
 
   # Line tracing
