@@ -64,6 +64,7 @@ module lab2_proc_AluVRTL
 
       4'd1    : out = in0 - in1;                                // SUB
       4'd2    : out = in0 & in1;                                // AND
+      4'd3    : out = in0 | in1;                                // OR
 
       //''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''
       // Add more alu function
