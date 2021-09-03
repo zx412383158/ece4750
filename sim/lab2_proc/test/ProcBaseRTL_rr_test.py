@@ -40,18 +40,21 @@ import inst_sub
 
 @pytest.mark.parametrize( "name,test", [
   asm_test( inst_sub.gen_basic_test     ) ,
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_sub.gen_dest_dep_test  ) ,
+  asm_test( inst_sub.gen_src0_dep_test  ) ,
+  asm_test( inst_sub.gen_src1_dep_test  ) ,
+  asm_test( inst_sub.gen_srcs_dep_test  ) ,
+  asm_test( inst_sub.gen_srcs_dest_test ) ,
+  asm_test( inst_sub.gen_value_test     ) ,
+  asm_test( inst_sub.gen_random_test    ) ,
 ])
 def test_sub( name, test, dump_vcd ):
   run_test( ProcBaseRTL, test, dump_vcd )
 
-# ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# random stall and delay
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+def test_sub_rand_delays( dump_vcd ):
+  run_test( ProcBaseRTL, inst_sub.gen_random_test, dump_vcd,
+            src_delay=3, sink_delay=5, mem_stall_prob=0.5, mem_latency=3 )
+
 #-------------------------------------------------------------------------
 # mul
 #-------------------------------------------------------------------------
