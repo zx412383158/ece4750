@@ -66,6 +66,7 @@ module lab2_proc_AluVRTL
       4'd2    : out = in0 & in1;                                // AND
       4'd3    : out = in0 | in1;                                // OR
       4'd4    : out = in0 ^ in1;                                // XOR
+      4'd5    : out = $signed(in0) < $signed(in1) ? 1 : 0;      // SLT
       //''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''
       // Add more alu function
       //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''

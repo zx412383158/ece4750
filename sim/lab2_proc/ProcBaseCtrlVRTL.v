@@ -268,6 +268,7 @@ module lab2_proc_ProcBaseCtrlVRTL
   localparam alu_and  = 4'd2;
   localparam alu_or   = 4'd3;
   localparam alu_xor  = 4'd4;
+  localparam alu_slt  = 4'd5;
 
   // Immediate Type
   localparam imm_x    = 3'bx;
@@ -355,6 +356,7 @@ module lab2_proc_ProcBaseCtrlVRTL
       `RV2ISA_INST_AND     :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_and, nr, wm_a, y,  n,   n    );
       `RV2ISA_INST_OR      :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_or,  nr, wm_a, y,  n,   n    );
       `RV2ISA_INST_XOR     :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_xor, nr, wm_a, y,  n,   n    );
+      `RV2ISA_INST_SLT     :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_slt, nr, wm_a, y,  n,   n    );
       //''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''
       // Add more instructions to the control signal table
       //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
