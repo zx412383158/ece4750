@@ -43,6 +43,35 @@ def gen_basic_test():
     nop
   """
 
-# ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Define additional directed and random test cases.
-# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#-------------------------------------------------------------------------
+# gen_value_test
+#-------------------------------------------------------------------------
+
+def gen_value_test():
+  return [
+
+    gen_rr_value_test( "srl", 0x00000000, 0x00000000, 0x00000000 ),
+    gen_rr_value_test( "srl", 0x00000001, 0x00000001, 0x00000000 ),
+    gen_rr_value_test( "srl", 0xffffffff, 0x00000001, 0x7fffffff ),
+
+    gen_rr_value_test( "srl", 0x40000000, 0x00000001, 0x20000000 ),
+    gen_rr_value_test( "srl", 0x80000000, 0x00000001, 0x40000000 ),
+    gen_rr_value_test( "srl", 0x80000000, 0xffff0000, 0x80000000 ),
+
+    gen_rr_value_test( "srl", 0x40000000, 0xffffffff, 0x00000000 ),
+    gen_rr_value_test( "srl", 0x80000000, 0xffffffff, 0x00000001 ),
+
+  ]
+
+#-------------------------------------------------------------------------
+# gen_random_test
+#-------------------------------------------------------------------------
+
+def gen_random_test():
+  asm_code = []
+  for i in xrange(100):
+    src0 = Bits( 32, random.randint(0,0xffffffff) )
+    src1 = Bits( 32, random.randint(0,0xffffffff) )
+    dest = Bits( 32, src0 >> src1[0:5] )
+    asm_code.append( gen_rr_value_test( "srl", src0.uint(), src1.uint(), dest.uint() ) )
+  return asm_code
