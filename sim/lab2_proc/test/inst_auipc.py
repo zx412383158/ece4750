@@ -33,6 +33,15 @@ def gen_basic_test():
     nop
   """
   
-# ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Define additional directed and random test cases.
-# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#-------------------------------------------------------------------------
+# gen_random_test
+#-------------------------------------------------------------------------
+
+def gen_random_test():
+  asm_code = []
+  for i in xrange(100):
+    imm  = Bits( 32, random.randint(0,0xfffff) )
+    dest = (imm << 12) + 0x200 + i*8
+    asm_code.append( gen_imm_value_test( "auipc", imm.uint(), dest.uint() ) )
+  return asm_code
+

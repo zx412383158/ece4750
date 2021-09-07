@@ -163,11 +163,7 @@ import inst_auipc
 
 @pytest.mark.parametrize( "name,test", [
   asm_test( inst_auipc.gen_basic_test    ) ,
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_auipc.gen_random_test   ) ,
 ])
 def test_auipc( name, test, dump_vcd ):
   run_test( ProcFL, test, dump_vcd )
