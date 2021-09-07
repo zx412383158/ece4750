@@ -82,11 +82,8 @@ import inst_slti
 
 @pytest.mark.parametrize( "name,test", [
   asm_test( inst_slti.gen_basic_test     ) ,
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_slti.gen_value_test     ) ,
+  asm_test( inst_slti.gen_random_test    ) ,
 ])
 def test_slti( name, test, dump_vcd ):
   run_test( ProcFL, test, dump_vcd )
@@ -99,11 +96,8 @@ import inst_sltiu
 
 @pytest.mark.parametrize( "name,test", [
   asm_test( inst_sltiu.gen_basic_test     ) ,
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_sltiu.gen_value_test     ) ,
+  asm_test( inst_sltiu.gen_random_test    ) ,
 ])
 def test_sltiu( name, test, dump_vcd ):
   run_test( ProcFL, test, dump_vcd )
