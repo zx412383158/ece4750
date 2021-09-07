@@ -110,11 +110,7 @@ import inst_srai
 
 @pytest.mark.parametrize( "name,test", [
   asm_test( inst_srai.gen_basic_test     ) ,
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_srai.gen_random_test    ) ,
 ])
 def test_srai( name, test, dump_vcd ):
   run_test( ProcFL, test, dump_vcd )
@@ -127,11 +123,7 @@ import inst_srli
 
 @pytest.mark.parametrize( "name,test", [
   asm_test( inst_srli.gen_basic_test     ) ,
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_srli.gen_random_test    ) ,
 ])
 def test_srli( name, test, dump_vcd ):
   run_test( ProcFL, test, dump_vcd )
@@ -144,11 +136,7 @@ import inst_slli
 
 @pytest.mark.parametrize( "name,test", [
   asm_test( inst_slli.gen_basic_test     ) ,
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_slli.gen_random_test    ) ,
 ])
 def test_slli( name, test, dump_vcd ):
   run_test( ProcFL, test, dump_vcd )

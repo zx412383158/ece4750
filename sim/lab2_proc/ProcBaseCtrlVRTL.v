@@ -390,6 +390,9 @@ module lab2_proc_ProcBaseCtrlVRTL
       `RV2ISA_INST_SRA     :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_sra, xm_a, nr, wm_a, y,  n,   n   );
       `RV2ISA_INST_SRL     :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_srl, xm_a, nr, wm_a, y,  n,   n   );
       `RV2ISA_INST_SLL     :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_sll, xm_a, nr, wm_a, y,  n,   n   );
+      `RV2ISA_INST_SRAI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_sra, xm_a, nr, wm_a, y,  n,   n   );
+      `RV2ISA_INST_SRLI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_srl, xm_a, nr, wm_a, y,  n,   n   );
+      `RV2ISA_INST_SLLI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_sll, xm_a, nr, wm_a, y,  n,   n   );
 
       // Register-immediate arithmetic, logical, and comparison instructions
 
@@ -399,9 +402,6 @@ module lab2_proc_ProcBaseCtrlVRTL
       `RV2ISA_INST_XORI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_xor, xm_a, nr, wm_a, y,  n,   n   );
       `RV2ISA_INST_SLTI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_slt, xm_a, nr, wm_a, y,  n,   n   );
       `RV2ISA_INST_SLTIU   :cs( y, br_na,  imm_i, y, bm_imm, n, alu_sltu,xm_a, nr, wm_a, y,  n,   n   );
-      // `RV2ISA_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, xm_a, nr, wm_a, y,  n,   n   );
-      // `RV2ISA_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, xm_a, nr, wm_a, y,  n,   n   );
-      // `RV2ISA_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, xm_a, nr, wm_a, y,  n,   n   );
 
       default              :cs( n, br_x,  imm_x, n, bm_x,    n, alu_x,   xm_x, nr, wm_x, n,  n,   n   );
 
