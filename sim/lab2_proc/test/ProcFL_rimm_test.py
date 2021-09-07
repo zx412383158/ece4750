@@ -17,11 +17,8 @@ import inst_addi
 
 @pytest.mark.parametrize( "name,test", [
   asm_test( inst_addi.gen_basic_test     ) ,
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_addi.gen_value_test     ) ,
+  asm_test( inst_addi.gen_random_test    ) ,
 ])
 def test_addi( name, test, dump_vcd ):
   run_test( ProcFL, test, dump_vcd )

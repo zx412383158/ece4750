@@ -71,9 +71,6 @@ module lab2_proc_AluVRTL
       4'd7    : out = $signed(in0) >>> in1[4:0];                // SRA
       4'd8    : out = in0 >> in1[4:0];                          // SRL
       4'd9    : out = in0 << in1[4:0];                          // SLL
-      //''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''
-      // Add more alu function
-      //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
       default : out = 32'b0;
     endcase

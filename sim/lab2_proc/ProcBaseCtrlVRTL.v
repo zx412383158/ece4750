@@ -375,6 +375,8 @@ module lab2_proc_ProcBaseCtrlVRTL
       `RV2ISA_INST_CSRR    :cs( y, br_na,  imm_i, n, bm_csr, n, alu_cp1, xm_a, nr, wm_a, y,  y,   n   );
       `RV2ISA_INST_CSRW    :cs( y, br_na,  imm_i, y, bm_rf,  n, alu_cp0, xm_a, nr, wm_a, n,  n,   y   );
 
+      // Register-register arithmetic, logical, and comparison instructions
+
       `RV2ISA_INST_SUB     :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_sub, xm_a, nr, wm_a, y,  n,   n   );
       `RV2ISA_INST_AND     :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_and, xm_a, nr, wm_a, y,  n,   n   );
       `RV2ISA_INST_OR      :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_or,  xm_a, nr, wm_a, y,  n,   n   );
@@ -388,9 +390,18 @@ module lab2_proc_ProcBaseCtrlVRTL
       `RV2ISA_INST_SRA     :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_sra, xm_a, nr, wm_a, y,  n,   n   );
       `RV2ISA_INST_SRL     :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_srl, xm_a, nr, wm_a, y,  n,   n   );
       `RV2ISA_INST_SLL     :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_sll, xm_a, nr, wm_a, y,  n,   n   );
-      //''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''
-      // Add more instructions to the control signal table
-      //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+      // Register-immediate arithmetic, logical, and comparison instructions
+
+      `RV2ISA_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, xm_a, nr, wm_a, y,  n,   n   );
+      // `RV2ISA_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, xm_a, nr, wm_a, y,  n,   n   );
+      // `RV2ISA_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, xm_a, nr, wm_a, y,  n,   n   );
+      // `RV2ISA_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, xm_a, nr, wm_a, y,  n,   n   );
+      // `RV2ISA_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, xm_a, nr, wm_a, y,  n,   n   );
+      // `RV2ISA_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, xm_a, nr, wm_a, y,  n,   n   );
+      // `RV2ISA_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, xm_a, nr, wm_a, y,  n,   n   );
+      // `RV2ISA_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, xm_a, nr, wm_a, y,  n,   n   );
+      // `RV2ISA_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, xm_a, nr, wm_a, y,  n,   n   );
 
       default              :cs( n, br_x,  imm_x, n, bm_x,    n, alu_x,   xm_x, nr, wm_x, n,  n,   n   );
 
