@@ -11,6 +11,7 @@
 `include "vc/regs.v"
 `include "vc/regfiles.v"
 
+`include "lab1_imul/IntMulAltVRTL.v"
 `include "lab2_proc/TinyRV2InstVRTL.v"
 `include "lab2_proc/ProcDpathComponentsVRTL.v"
 
@@ -39,6 +40,14 @@ module lab2_proc_ProcBaseDpathVRTL
   input  logic [31:0] mngr2proc_data,
   output logic [31:0] proc2mngr_data,
 
+  // imul signals
+
+  input  logic        imulreq_val,
+  output logic        imulreq_rdy,
+
+  output logic        imulresp_val,
+  input  logic        imulresp_rdy,
+
   // control signals (ctrl->dpath)
 
   output logic        imemresp_val_drop,
@@ -55,6 +64,7 @@ module lab2_proc_ProcBaseDpathVRTL
 
   input  logic        reg_en_X,
   input  logic [3:0]  alu_fn_X,
+  input  logic [1:0]  ex_result_sel_X,
 
   input  logic        reg_en_M,
   input  logic        wb_result_sel_M,
@@ -219,6 +229,10 @@ module lab2_proc_ProcBaseDpathVRTL
     .cout     ()
   );
 
+  logic [63:0] imulreq_msg;
+
+  assign imulreq_msg = {rf_rdata0_D, op2_D};
+
   //--------------------------------------------------------------------
   // X stage
   //--------------------------------------------------------------------
@@ -267,7 +281,30 @@ module lab2_proc_ProcBaseDpathVRTL
     .ops_ltu  ()
   );
 
-  assign ex_result_X = alu_result_X;
+  logic [31:0] imulresp_msg;
+
+  lab1_imul_IntMulAltVRTL imul
+  (
+    .clk      (clk),
+    .reset    (reset),
+    .req_val  (imulreq_val),
+    .req_rdy  (imulreq_rdy),
+    .req_msg  (imulreq_msg),
+    .resp_val (imulresp_val),
+    .resp_rdy (imulresp_rdy),
+    .resp_msg (imulresp_msg)
+  );
+  
+  // ex_result select mux
+  // This mux chooses among alu, iml
+  vc_Mux3 #(32) ex_result_sel_mux_X
+  (
+    .in0  (alu_result_X),
+    .in1  (),
+    .in2  (imulresp_msg),
+    .sel  (ex_result_sel_X),
+    .out  (ex_result_X)
+  );
 
   assign dmemreq_msg_addr = alu_result_X;
 

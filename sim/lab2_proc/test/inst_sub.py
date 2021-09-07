@@ -80,6 +80,6 @@ def gen_random_test():
   for i in xrange(100):
     src0 = Bits( 32, random.randint(0,0xffffffff) )
     src1 = Bits( 32, random.randint(0,0xffffffff) )
-    dest = Bits( 32, src0.int() - src1.int(), trunc=True )
+    dest = src0 - src1
     asm_code.append( gen_rr_value_test( "sub", src0.int(), src1.int(), dest.int() ) )
   return asm_code

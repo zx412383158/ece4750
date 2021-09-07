@@ -13,7 +13,7 @@
 
 module lab1_imul_IntMulAltDpath
 #(
-  parameter p_nbits = 16
+  parameter p_nbits = 32
 )(
   input  logic clk,
   input  logic reset,

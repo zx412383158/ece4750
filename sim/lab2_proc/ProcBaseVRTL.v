@@ -110,6 +110,14 @@ module lab2_proc_ProcBaseVRTL
 
   logic        imemresp_drop;
 
+  // imul signal
+
+  logic        imulreq_val;
+  logic        imulreq_rdy;
+
+  logic        imulresp_val;
+  logic        imulresp_rdy;
+
   // control signals (ctrl->dpath)
 
   logic        reg_en_F;
@@ -122,6 +130,7 @@ module lab2_proc_ProcBaseVRTL
 
   logic        reg_en_X;
   logic [3:0]  alu_fn_X;
+  logic [1:0]  ex_result_sel_X;
 
   logic        reg_en_M;
   logic        wb_result_sel_M;
@@ -208,6 +217,13 @@ module lab2_proc_ProcBaseVRTL
     .proc2mngr_val          (proc2mngr_enq_val),
     .proc2mngr_rdy          (proc2mngr_enq_rdy),
 
+    // imul signals
+
+    .imulreq_val            (imulreq_val),
+    .imulreq_rdy            (imulreq_rdy),
+    .imulresp_val           (imulresp_val),
+    .imulresp_rdy           (imulresp_rdy),
+
     // control signals (ctrl->dpath)
 
     .reg_en_F               (reg_en_F),
@@ -220,6 +236,7 @@ module lab2_proc_ProcBaseVRTL
 
     .reg_en_X               (reg_en_X),
     .alu_fn_X               (alu_fn_X),
+    .ex_result_sel_X        (ex_result_sel_X),
 
     .reg_en_M               (reg_en_M),
     .wb_result_sel_M        (wb_result_sel_M),
@@ -317,6 +334,13 @@ module lab2_proc_ProcBaseVRTL
     .mngr2proc_data          (mngr2proc_msg),
     .proc2mngr_data          (proc2mngr_enq_msg),
 
+    // imul signals
+
+    .imulreq_val            (imulreq_val),
+    .imulreq_rdy            (imulreq_rdy),
+    .imulresp_val           (imulresp_val),
+    .imulresp_rdy           (imulresp_rdy),
+
     // control signals (ctrl->dpath)
 
     .imemresp_val_drop       (imemresp_val_drop),
@@ -333,6 +357,7 @@ module lab2_proc_ProcBaseVRTL
 
     .reg_en_X                (reg_en_X),
     .alu_fn_X                (alu_fn_X),
+    .ex_result_sel_X        (ex_result_sel_X),
 
     .reg_en_M                (reg_en_M),
     .wb_result_sel_M         (wb_result_sel_M),

@@ -58,18 +58,15 @@ import inst_mul
 
 @pytest.mark.parametrize( "name,test", [
   asm_test( inst_mul.gen_basic_test     ) ,
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_mul.gen_value_test     ) ,
+  asm_test( inst_mul.gen_random_test    ) ,
 ])
 def test_mul( name, test, dump_vcd ):
   run_test( ProcBaseRTL, test, dump_vcd )
 
-# ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# random stall and delay
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+def test_mul_rand_delays( dump_vcd ):
+  run_test( ProcBaseRTL, inst_mul.gen_random_test, dump_vcd,
+            src_delay=3, sink_delay=5, mem_stall_prob=0.5, mem_latency=3 )
 #-------------------------------------------------------------------------
 # and
 #-------------------------------------------------------------------------
