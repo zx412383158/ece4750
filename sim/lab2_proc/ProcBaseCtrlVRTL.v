@@ -403,6 +403,10 @@ module lab2_proc_ProcBaseCtrlVRTL
       `RV2ISA_INST_SLTI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_slt, xm_a, nr, wm_a, y,  n,   n   );
       `RV2ISA_INST_SLTIU   :cs( y, br_na,  imm_i, y, bm_imm, n, alu_sltu,xm_a, nr, wm_a, y,  n,   n   );
 
+      // Other instructions
+
+      `RV2ISA_INST_LUI     :cs( y, br_na,  imm_u, n, bm_imm, n, alu_cp1, xm_a, nr, wm_a, y,  n,   n   );
+
       default              :cs( n, br_x,  imm_x, n, bm_x,    n, alu_x,   xm_x, nr, wm_x, n,  n,   n   );
 
     endcase
