@@ -48,7 +48,3 @@ def gen_basic_test():
     csrw  proc2mngr, x3 > 0b10
 
   """
-
-# ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Define additional directed and random test cases.
-# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
