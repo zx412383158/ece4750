@@ -76,6 +76,8 @@ module lab2_proc_ProcBaseCtrlVRTL
 
   input  logic [31:0] inst_D,
   input  logic        br_cond_eq_X,
+  input  logic        br_cond_lt_X,
+  input  logic        br_cond_ltu_X,
 
   // stats output
 
@@ -254,12 +256,6 @@ module lab2_proc_ProcBaseCtrlVRTL
   localparam n = 1'd0;
   localparam y = 1'd1;
 
-  // Register specifiers
-
-  // localparam rx = 5'bx;   // don't care
-  // localparam r0 = 5'd0;   // zero
-  // localparam rL = 5'd31;  // for jal
-
   // Branch type
 
   localparam br_na    = 3'd0; // No branch
@@ -273,7 +269,7 @@ module lab2_proc_ProcBaseCtrlVRTL
   // Jump type
 
   localparam jp_na    = 2'b00; // No jump
-  localparam jp_jl    = 2'b10; // Jal
+  localparam jp_jal   = 2'b10; // Jal
   localparam jp_jr    = 2'b11; // Jalr
 
   // Operand 1 Mux Select
@@ -397,7 +393,6 @@ module lab2_proc_ProcBaseCtrlVRTL
       //                           jp     br      imm   op1   rs1  op2   rs2  alu     exmux  dmm wbmux rf
       //                       val type   type    type  muxsel en  muxsel en  fn       sel  type sel  wen csrr csrw
       `RV2ISA_INST_NOP     :cs( y, jp_na, br_na,  imm_x, am_x,  n, bm_x,   n, alu_x,   xm_a, nr, wm_a, n,  n,   n   );
-      `RV2ISA_INST_BNE     :cs( y, jp_na, br_bne, imm_b, am_rf, y, bm_rf,  y, alu_x,   xm_a, nr, wm_a, n,  n,   n   );
       `RV2ISA_INST_CSRR    :cs( y, jp_na, br_na,  imm_i, am_rf, n, bm_csr, n, alu_cp1, xm_a, nr, wm_a, y,  y,   n   );
       `RV2ISA_INST_CSRW    :cs( y, jp_na, br_na,  imm_i, am_rf, y, bm_rf,  n, alu_cp0, xm_a, nr, wm_a, n,  n,   y   );
 
@@ -442,8 +437,17 @@ module lab2_proc_ProcBaseCtrlVRTL
 
       // Unconditional jump instructions
 
-      `RV2ISA_INST_JAL     :cs( y, jp_jl, br_na,  imm_j, am_x,  n, bm_x,   n, alu_x,   xm_i, nr, wm_a, y,  n,   n   );
-      // `RV2ISA_INST_JALR    :cs( y, jp_jr, br_na,  imm_i, am_rf, y, bm_imm, n, alu_add, xm_i, nr, wm_a, y,  n,   n   );
+      `RV2ISA_INST_JAL     :cs( y, jp_jal,br_na,  imm_j, am_x,  n, bm_x,   n, alu_x,   xm_i, nr, wm_a, y,  n,   n   );
+      `RV2ISA_INST_JALR    :cs( y, jp_jr, br_na,  imm_i, am_rf, y, bm_imm, n, alu_add, xm_i, nr, wm_a, y,  n,   n   );
+
+      // Conditional branch instructions
+
+      `RV2ISA_INST_BEQ     :cs( y, jp_na, br_beq, imm_b, am_rf, y, bm_rf,  y, alu_x,   xm_a, nr, wm_a, n,  n,   n   );
+      `RV2ISA_INST_BNE     :cs( y, jp_na, br_bne, imm_b, am_rf, y, bm_rf,  y, alu_x,   xm_a, nr, wm_a, n,  n,   n   );
+      `RV2ISA_INST_BLT     :cs( y, jp_na, br_blt, imm_b, am_rf, y, bm_rf,  y, alu_x,   xm_a, nr, wm_a, n,  n,   n   );
+      `RV2ISA_INST_BGE     :cs( y, jp_na, br_bge, imm_b, am_rf, y, bm_rf,  y, alu_x,   xm_a, nr, wm_a, n,  n,   n   );
+      `RV2ISA_INST_BLTU    :cs( y, jp_na, br_bltu,imm_b, am_rf, y, bm_rf,  y, alu_x,   xm_a, nr, wm_a, n,  n,   n   );
+      `RV2ISA_INST_BGEU    :cs( y, jp_na, br_bgeu,imm_b, am_rf, y, bm_rf,  y, alu_x,   xm_a, nr, wm_a, n,  n,   n   );
 
       default              :cs( n, jp_na, br_na,  imm_x, am_x,  n, bm_x,   n, alu_x,   xm_x, nr, wm_x, n,  n,   n   );
 
@@ -455,8 +459,8 @@ module lab2_proc_ProcBaseCtrlVRTL
 
   //  jump logic
 
-  assign pc_redirect_D = ( val_D && ( jp_type_D == jp_jl ) ) ? 1'b1 : 1'b0;
-  assign pc_sel_D      = ( val_D && ( jp_type_D == jp_jl ) ) ? 2'd2 : 2'd0;
+  assign pc_redirect_D = ( val_D && ( jp_type_D == jp_jal ) ) ? 1'b1 : 1'b0;
+  assign pc_sel_D      = ( val_D && ( jp_type_D == jp_jal ) ) ? 2'd2 : 2'd0;
 
   // csrr and csrw logic
 
@@ -547,7 +551,7 @@ module lab2_proc_ProcBaseCtrlVRTL
 
   // osquash due to jump instruction in D stage
 
-  assign osquash_D = ( val_D && ( jp_type_D == jp_jl ) ) ? 1'b1 : 1'b0;
+  assign osquash_D = ( val_D && ( jp_type_D == jp_jal ) ) ? 1'b1 : 1'b0;
 
   // stall and squash in D
 
@@ -575,6 +579,7 @@ module lab2_proc_ProcBaseCtrlVRTL
   logic [4:0]  rf_waddr_X;
   logic        proc2mngr_val_X;
   logic        stats_en_wen_X;
+  logic [1:0]  jp_type_X;
   logic [2:0]  br_type_X;
 
   // Pipeline registers
@@ -595,16 +600,42 @@ module lab2_proc_ProcBaseCtrlVRTL
       rf_waddr_X      <= rf_waddr_D;
       proc2mngr_val_X <= proc2mngr_val_D;
       stats_en_wen_X  <= stats_en_wen_D;
+      jp_type_X       <= jp_type_D;
       br_type_X       <= br_type_D;
     end
 
   // branch logic, redirect PC in F if branch is taken
 
   always_comb begin
-    if ( val_X && ( br_type_X == br_bne ) ) begin
+    if ( val_X && ( br_type_X == br_beq ) ) begin
+      pc_redirect_X = br_cond_eq_X;
+      pc_sel_X      = 2'b1;          // use branch target
+    end 
+    else if ( val_X && ( br_type_X == br_bne ) ) begin
       pc_redirect_X = !br_cond_eq_X;
       pc_sel_X      = 2'b1;          // use branch target
-    end else begin
+    end 
+    else if ( val_X && ( br_type_X == br_blt ) ) begin
+      pc_redirect_X = br_cond_lt_X;
+      pc_sel_X      = 2'b1;          // use branch target
+    end
+    else if ( val_X && ( br_type_X == br_bge ) ) begin
+      pc_redirect_X = !br_cond_lt_X;
+      pc_sel_X      = 2'b1;          // use branch target
+    end
+    else if ( val_X && ( br_type_X == br_bltu ) ) begin
+      pc_redirect_X = br_cond_ltu_X;
+      pc_sel_X      = 2'b1;          // use branch target
+    end
+    else if ( val_X && ( br_type_X == br_bgeu ) ) begin
+      pc_redirect_X = !br_cond_ltu_X;
+      pc_sel_X      = 2'b1;          // use branch target
+    end
+    else if ( val_X && ( jp_type_X == jp_jr ) ) begin
+      pc_redirect_X = 1'b1;
+      pc_sel_X      = 2'd3;          // use jalr target
+    end
+    else begin
       pc_redirect_X = 1'b0;
       pc_sel_X      = 2'b0;          // use pc+4
     end

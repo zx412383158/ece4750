@@ -50,6 +50,16 @@ def gen_basic_test():
 
   """
 
-# ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Define additional directed and random test cases.
-# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#-------------------------------------------------------------------------
+# gen_random_test
+#-------------------------------------------------------------------------
+
+def gen_random_test():
+  asm_code = []
+  for i in xrange(25):
+    src0  = Bits( 32, random.randint(0,0xffffffff) )
+    src1  = Bits( 32, random.randint(0,0xffffffff) )
+    taken = src0 >= src1
+    
+    asm_code.append( gen_br2_value_test( "bgeu", src0.uint(), src1.uint(), taken ) )
+  return asm_code

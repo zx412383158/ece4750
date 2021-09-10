@@ -16,12 +16,9 @@ from lab2_proc.ProcFL import ProcFL
 import inst_beq
 
 @pytest.mark.parametrize( "name,test", [
-  asm_test( inst_beq.gen_basic_test ) ,
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_beq.gen_basic_test  ),
+  asm_test( inst_beq.gen_value_test  ),
+  asm_test( inst_beq.gen_random_test ),
 ])
 def test_beq( name, test, dump_vcd ):
   run_test( ProcFL, test, dump_vcd )
@@ -55,11 +52,7 @@ import inst_bge
 
 @pytest.mark.parametrize( "name,test", [
   asm_test( inst_bge.gen_basic_test             ),
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_bge.gen_random_test            ),
 ])
 def test_bge( name, test, dump_vcd ):
   run_test( ProcFL, test, dump_vcd )
@@ -72,11 +65,7 @@ import inst_bgeu
 
 @pytest.mark.parametrize( "name,test", [
   asm_test( inst_bgeu.gen_basic_test             ),
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_bgeu.gen_random_test            ),
 ])
 def test_bgeu( name, test, dump_vcd ):
   run_test( ProcFL, test, dump_vcd )
@@ -88,12 +77,8 @@ def test_bgeu( name, test, dump_vcd ):
 import inst_blt
 
 @pytest.mark.parametrize( "name,test", [
-  asm_test( inst_blt.gen_basic_test             ),
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_blt.gen_basic_test  ),
+  asm_test( inst_blt.gen_random_test ),
 ])
 def test_blt( name, test, dump_vcd ):
   run_test( ProcFL, test, dump_vcd )
@@ -105,12 +90,8 @@ def test_blt( name, test, dump_vcd ):
 import inst_bltu
 
 @pytest.mark.parametrize( "name,test", [
-  asm_test( inst_bltu.gen_basic_test             ),
-
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Add more rows to the test case table to test more complicated
-  # scenarios.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  asm_test( inst_bltu.gen_basic_test ),
+  asm_test( inst_bltu.gen_random_test ),
 ])
 def test_bltu( name, test, dump_vcd ):
   run_test( ProcFL, test, dump_vcd )

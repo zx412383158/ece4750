@@ -39,4 +39,6 @@ import inst_jalr
   # Add more rows to the test case table to test more complicated
   # scenarios.
   # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+])
+def test_jalr( name, test, dump_vcd ):
+  run_test( ProcFL, test, dump_vcd )
