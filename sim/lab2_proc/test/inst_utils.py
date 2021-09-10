@@ -574,6 +574,48 @@ def gen_ld_value_test( inst, offset, base, result ):
 
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+#-------------------------------------------------------------------------
+# gen_st_template
+#-------------------------------------------------------------------------
+# Template for store instructions.
+
+def gen_st_template(
+  num_nops_base, num_nops_dest,
+  reg_base, reg_src,
+  inst, offset, base, result
+):
+  return """
+
+    # Move base value into register
+    csrr {reg_base}, mngr2proc < {base}
+    csrr {reg_src}, mngr2proc < {result}
+    {nops_base}
+
+    # Instruction under test
+    {inst} {reg_src}, {offset}({reg_base})
+    {nops_dest}
+
+    # Check the result
+    lw x3, {offset}({reg_base})
+    csrw proc2mngr, x3 > {result}
+
+  """.format(
+    nops_base = gen_nops(num_nops_base),
+    nops_dest = gen_nops(num_nops_dest),
+    **locals()
+  )
+
+#-------------------------------------------------------------------------
+# gen_ld_value_test
+#-------------------------------------------------------------------------
+# Test the actual operation of a register-register instruction under
+# test. We assume that bypassing has already been tested.
+
+def gen_st_value_test( inst, offset, base, result ):
+  return gen_st_template( 0, 0, "x1", "x2", inst, offset, base, result )
+
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 #=========================================================================
 # TestHarness
 #=========================================================================

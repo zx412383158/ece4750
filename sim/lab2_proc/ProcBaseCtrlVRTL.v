@@ -26,6 +26,7 @@ module lab2_proc_ProcBaseCtrlVRTL
 
   // Data Memory Port
 
+  output logic [2:0]  dmemreq_type,
   output logic        dmemreq_val,
   input  logic        dmemreq_rdy,
 
@@ -69,13 +70,14 @@ module lab2_proc_ProcBaseCtrlVRTL
   output logic        reg_en_W,
   output logic [4:0]  rf_waddr_W,
   output logic        rf_wen_W,
+  output logic        stats_en_wen_W,
 
   // status signals (dpath->ctrl)
 
   input  logic [31:0] inst_D,
   input  logic        br_cond_eq_X,
 
-  output logic        stats_en_wen_W,
+  // stats output
 
   output logic        commit_inst
 
@@ -378,14 +380,13 @@ module lab2_proc_ProcBaseCtrlVRTL
       //                           br      imm   op1   rs1  op2   rs2  alu     exmux  dmm wbmux rf
       //                       val type    type  muxsel en  muxsel en  fn       sel   typ sel   wen csrr csrw
       `RV2ISA_INST_NOP     :cs( y, br_na,  imm_x, am_x,  n, bm_x,   n, alu_x,   xm_a, nr, wm_a, n,  n,   n   );
-      `RV2ISA_INST_ADD     :cs( y, br_na,  imm_x, am_rf, y, bm_rf,  y, alu_add, xm_a, nr, wm_a, y,  n,   n   );
-      `RV2ISA_INST_LW      :cs( y, br_na,  imm_i, am_rf, y, bm_imm, n, alu_add, xm_a, ld, wm_m, y,  n,   n   );
       `RV2ISA_INST_BNE     :cs( y, br_bne, imm_b, am_rf, y, bm_rf,  y, alu_x,   xm_a, nr, wm_a, n,  n,   n   );
       `RV2ISA_INST_CSRR    :cs( y, br_na,  imm_i, am_rf, n, bm_csr, n, alu_cp1, xm_a, nr, wm_a, y,  y,   n   );
       `RV2ISA_INST_CSRW    :cs( y, br_na,  imm_i, am_rf, y, bm_rf,  n, alu_cp0, xm_a, nr, wm_a, n,  n,   y   );
 
       // Register-register arithmetic, logical, and comparison instructions
 
+      `RV2ISA_INST_ADD     :cs( y, br_na,  imm_x, am_rf, y, bm_rf,  y, alu_add, xm_a, nr, wm_a, y,  n,   n   );
       `RV2ISA_INST_SUB     :cs( y, br_na,  imm_x, am_rf, y, bm_rf,  y, alu_sub, xm_a, nr, wm_a, y,  n,   n   );
       `RV2ISA_INST_AND     :cs( y, br_na,  imm_x, am_rf, y, bm_rf,  y, alu_and, xm_a, nr, wm_a, y,  n,   n   );
       `RV2ISA_INST_OR      :cs( y, br_na,  imm_x, am_rf, y, bm_rf,  y, alu_or,  xm_a, nr, wm_a, y,  n,   n   );
@@ -416,6 +417,11 @@ module lab2_proc_ProcBaseCtrlVRTL
 
       `RV2ISA_INST_LUI     :cs( y, br_na,  imm_u, am_rf, n, bm_imm, n, alu_cp1, xm_a, nr, wm_a, y,  n,   n   );
       `RV2ISA_INST_AUIPC   :cs( y, br_na,  imm_u, am_pc, n, bm_imm, n, alu_add, xm_a, nr, wm_a, y,  n,   n   );
+
+      // Memory instructions
+
+      `RV2ISA_INST_LW      :cs( y, br_na,  imm_i, am_rf, y, bm_imm, n, alu_add, xm_a, ld, wm_m, y,  n,   n   );
+      `RV2ISA_INST_SW      :cs( y, br_na,  imm_s, am_rf, y, bm_imm, y, alu_add, xm_a, st, wm_m, y,  n,   n   );
 
       default              :cs( n, br_x,   imm_x, am_x,  n, bm_x,   n, alu_x,   xm_x, nr, wm_x, n,  n,   n   );
 
@@ -575,6 +581,16 @@ module lab2_proc_ProcBaseCtrlVRTL
       pc_redirect_X = 1'b0;
       pc_sel_X      = 2'b0;          // use pc+4
     end
+  end
+
+  // dmemreq type logic
+
+  always_comb begin
+    case ( dmemreq_type_X )
+      ld:      dmemreq_type = 3'd0;  // VC_MEM_REQ_MSG_TYPE_READ 
+      st:      dmemreq_type = 3'd1;  // VC_MEM_REQ_MSG_TYPE_WRITE
+      default: dmemreq_type = 3'dx;
+    endcase
   end
 
   // imul_resp_rdy signal for mul instruction

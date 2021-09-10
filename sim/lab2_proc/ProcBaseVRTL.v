@@ -66,7 +66,7 @@ module lab2_proc_ProcBaseVRTL
   // stats output
 
   output logic         commit_inst,
-
+  
   output logic         stats_en
 
 );
@@ -87,7 +87,9 @@ module lab2_proc_ProcBaseVRTL
 
   // dmem req before pack
 
+  logic [2:0]  dmemreq_type;
   logic [31:0] dmemreq_msg_addr;
+  logic [31:0] dmemreq_msg_data;
 
   // dmemreq after pack before bypass queue
 
@@ -156,11 +158,11 @@ module lab2_proc_ProcBaseVRTL
   assign imemreq_enq_msg.len    = 2'd0;
   assign imemreq_enq_msg.data   = 32'bx;
 
-  assign dmemreq_enq_msg.type_  = `VC_MEM_REQ_MSG_TYPE_READ;
+  assign dmemreq_enq_msg.type_  = dmemreq_type;
   assign dmemreq_enq_msg.opaque = 8'b0;
   assign dmemreq_enq_msg.addr   = dmemreq_msg_addr;
   assign dmemreq_enq_msg.len    = 2'd0;
-  assign dmemreq_enq_msg.data   = 32'b0;
+  assign dmemreq_enq_msg.data   = dmemreq_msg_data;
 
   //----------------------------------------------------------------------
   // Imem Drop Unit
@@ -206,6 +208,7 @@ module lab2_proc_ProcBaseVRTL
 
     // Data Memory Port
 
+    .dmemreq_type           (dmemreq_type),
     .dmemreq_val            (dmemreq_enq_val),
     .dmemreq_rdy            (dmemreq_enq_rdy),
     .dmemresp_val           (dmemresp_val),
@@ -253,6 +256,8 @@ module lab2_proc_ProcBaseVRTL
     .inst_D                 (inst_D),
     .br_cond_eq_X           (br_cond_eq_X),
 
+    // stats output
+    
     .commit_inst            (commit_inst)
   );
 
@@ -329,6 +334,7 @@ module lab2_proc_ProcBaseVRTL
     // Data Memory Port
 
     .dmemreq_msg_addr        (dmemreq_msg_addr),
+    .dmemreq_msg_data        (dmemreq_msg_data),
     .dmemresp_msg_data       (dmemresp_msg.data),
 
     // mngr communication ports

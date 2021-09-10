@@ -39,6 +39,33 @@ def gen_basic_test():
     .word 0x01020304
   """
 
-# ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Define additional directed and random test cases.
-# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#-------------------------------------------------------------------------
+# gen_random_test
+#-------------------------------------------------------------------------
+
+def gen_random_test():
+
+  # Generate some random data
+
+  data = []
+  for i in xrange(128):
+    data.append( random.randint(0,0xffffffff) )
+
+  # Generate random accesses to this data
+
+  asm_code = []
+  for i in xrange(100):
+
+    a = random.randint(0,127)
+    b = random.randint(0,127)
+
+    base   = Bits( 32, 0x2000 + (4*b) )
+    offset = Bits( 16, (4*(a - b)) )
+    result = data[a]
+
+    asm_code.append( gen_st_value_test( "sw", offset.int(), base.uint(), result ) )
+
+  # Add the data to the end of the assembly code
+
+  asm_code.append( gen_word_data( data ) )
+  return asm_code
