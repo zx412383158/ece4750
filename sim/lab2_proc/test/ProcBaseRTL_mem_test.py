@@ -43,6 +43,6 @@ import inst_sw
 def test_sw( name, test, dump_vcd ):
   run_test( ProcBaseRTL, test, dump_vcd )
 
-def test_st_rand_delays( dump_vcd ):
-  run_test( ProcBaseRTL, inst_st.gen_random_test, dump_vcd,
+def test_sw_rand_delays( dump_vcd ):
+  run_test( ProcBaseRTL, inst_sw.gen_random_test, dump_vcd,
             src_delay=3, sink_delay=5, mem_stall_prob=0.5, mem_latency=3 )

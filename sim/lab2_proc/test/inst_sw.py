@@ -63,6 +63,8 @@ def gen_random_test():
     offset = Bits( 16, (4*(a - b)) )
     result = data[a]
 
+    print(offset)
+
     asm_code.append( gen_st_value_test( "sw", offset.int(), base.uint(), result ) )
 
   # Add the data to the end of the assembly code
