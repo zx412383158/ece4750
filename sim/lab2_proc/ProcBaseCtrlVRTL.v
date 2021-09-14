@@ -26,7 +26,8 @@ module lab2_proc_ProcBaseCtrlVRTL
 
   // Data Memory Port
 
-  output logic [2:0]  dmemreq_type,
+  output logic [2:0]  dmemreq_msg_type,
+  
   output logic        dmemreq_val,
   input  logic        dmemreq_rdy,
 
@@ -433,7 +434,7 @@ module lab2_proc_ProcBaseCtrlVRTL
       // Memory instructions
 
       `RV2ISA_INST_LW      :cs( y, jp_na, br_na,  imm_i, am_rf, y, bm_imm, n, alu_add, xm_a, ld, wm_m, y,  n,   n   );
-      `RV2ISA_INST_SW      :cs( y, jp_na, br_na,  imm_s, am_rf, y, bm_imm, y, alu_add, xm_a, st, wm_m, y,  n,   n   );
+      `RV2ISA_INST_SW      :cs( y, jp_na, br_na,  imm_s, am_rf, y, bm_imm, y, alu_add, xm_a, st, wm_m, n,  n,   n   );
 
       // Unconditional jump instructions
 
@@ -645,9 +646,9 @@ module lab2_proc_ProcBaseCtrlVRTL
 
   always_comb begin
     case ( dmemreq_type_X )
-      ld:      dmemreq_type = 3'd0;  // VC_MEM_REQ_MSG_TYPE_READ 
-      st:      dmemreq_type = 3'd1;  // VC_MEM_REQ_MSG_TYPE_WRITE
-      default: dmemreq_type = 3'dx;
+      ld:      dmemreq_msg_type = 3'd0;  // VC_MEM_REQ_MSG_TYPE_READ 
+      st:      dmemreq_msg_type = 3'd1;  // VC_MEM_REQ_MSG_TYPE_WRITE
+      default: dmemreq_msg_type = 3'dx;
     endcase
   end
 
