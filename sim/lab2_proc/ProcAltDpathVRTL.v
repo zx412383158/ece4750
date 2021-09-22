@@ -59,8 +59,10 @@ module lab2_proc_ProcAltDpathVRTL
   input  logic [1:0]  pc_sel_F,
 
   input  logic        reg_en_D,
-  input  logic [2:0]  op1_sel_D,
-  input  logic [2:0]  op2_sel_D,
+  input  logic [1:0]  op1_bypass_sel_D,
+  input  logic [1:0]  op2_bypass_sel_D,
+  input  logic        op1_sel_D,
+  input  logic [1:0]  op2_sel_D,
   input  logic [1:0]  csrr_sel_D,
   input  logic [2:0]  imm_type_D,
 
@@ -199,6 +201,8 @@ module lab2_proc_ProcAltDpathVRTL
 
   logic [31:0] op1_D;
   logic [31:0] op2_D;
+  logic [31:0] op1_bypass_data;
+  logic [31:0] op2_bypass_data;
 
   logic [31:0] csrr_data_D;
 
@@ -215,15 +219,34 @@ module lab2_proc_ProcAltDpathVRTL
    .out  (csrr_data_D)
   );
 
-  // op1 select mux
-  // This mux chooses among RS1, PC
-  vc_Mux5 #(32) op1_sel_mux_D
+  // op1 bypass select mux
+  vc_Mux4 #(32) op1_bypass_mux_D
   (
     .in0  (rf_rdata0_D),
-    .in1  (pc_D),
-    .in2  (ex_result_X),
-    .in3  (wb_result_M),
-    .in4  (wb_result_W),
+    .in1  (ex_result_X),
+    .in2  (wb_result_M),
+    .in3  (wb_result_W),
+    .sel  (op1_bypass_sel_D),
+    .out  (op1_bypass_data)
+  );
+
+  // op2 bypass select mux
+  vc_Mux4 #(32) op2_bypass_mux_D
+  (
+    .in0  (rf_rdata1_D),
+    .in1  (ex_result_X),
+    .in2  (wb_result_M),
+    .in3  (wb_result_W),
+    .sel  (op2_bypass_sel_D),
+    .out  (op2_bypass_data)
+  );
+
+  // op1 select mux
+  // This mux chooses among RS1, PC
+  vc_Mux2 #(32) op1_sel_mux_D
+  (
+    .in0  (op1_bypass_data),
+    .in1  (pc_D),    
     .sel  (op1_sel_D),
     .out  (op1_D)
   );
@@ -231,14 +254,11 @@ module lab2_proc_ProcAltDpathVRTL
   // op2 select mux
   // This mux chooses among RS2, imm, and the output of the above csrr
   // csrr sel mux. Basically we are using two muxes here for pedagogy.
-  vc_Mux6 #(32) op2_sel_mux_D
+  vc_Mux3 #(32) op2_sel_mux_D
   (
-    .in0  (rf_rdata1_D),
+    .in0  (op2_bypass_data),
     .in1  (imm_D),
     .in2  (csrr_data_D),
-    .in3  (ex_result_X),
-    .in4  (wb_result_M),
-    .in5  (wb_result_W),
     .sel  (op2_sel_D),
     .out  (op2_D)
   );
@@ -296,7 +316,7 @@ module lab2_proc_ProcAltDpathVRTL
     .clk    (clk),
     .reset  (reset),
     .en     (reg_en_X),
-    .d      (rf_rdata1_D),
+    .d      (op2_bypass_data),
     .q      (dmemreq_msg_data)
   );
 

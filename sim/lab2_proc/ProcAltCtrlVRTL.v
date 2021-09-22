@@ -56,8 +56,10 @@ module lab2_proc_ProcAltCtrlVRTL
   output logic [1:0]  pc_sel_F,
 
   output logic        reg_en_D,
-  output logic [2:0]  op1_sel_D,
-  output logic [2:0]  op2_sel_D,
+  output logic [1:0]  op1_bypass_sel_D,
+  output logic [1:0]  op2_bypass_sel_D,
+  output logic        op1_sel_D,
+  output logic [1:0]  op2_sel_D,
   output logic [1:0]  csrr_sel_D,
   output logic [2:0]  imm_type_D,
 
@@ -273,24 +275,26 @@ module lab2_proc_ProcAltCtrlVRTL
   localparam jp_jal   = 2'b10; // Jal
   localparam jp_jr    = 2'b11; // Jalr
 
+// Operand bypass Mux Select
+
+  localparam bp_x     = 2'bx; // Don't care
+  localparam bp_rf    = 2'd0; // Use data from register file
+  localparam bp_X     = 2'd1; // Bypass by X
+  localparam bp_M     = 2'd2; // Bypass by M
+  localparam bp_W     = 2'd3; // Bypass by W
+
   // Operand 1 Mux Select
 
-  localparam am_x     = 3'bx; // Don't care
-  localparam am_rf    = 3'd0; // Use data from register file
-  localparam am_pc    = 3'd1; // Use PC
-  localparam am_X     = 3'd2; // Bypass by X
-  localparam am_M     = 3'd3; // Bypass by M
-  localparam am_W     = 3'd4; // Bypass by W
+  localparam am_x     = 1'bx; // Don't care
+  localparam am_rf    = 1'd0; // Use data from register file
+  localparam am_pc    = 1'd1; // Use PC
 
   // Operand 2 Mux Select
 
-  localparam bm_x     = 3'bx; // Don't care
-  localparam bm_rf    = 3'd0; // Use data from register file
-  localparam bm_imm   = 3'd1; // Use sign-extended immediate
-  localparam bm_csr   = 3'd2; // Use from mngr data
-  localparam bm_X     = 3'd3; // Bypass by X
-  localparam bm_M     = 3'd4; // Bypass by M
-  localparam bm_W     = 3'd5; // Bypass by W
+  localparam bm_x     = 2'bx; // Don't care
+  localparam bm_rf    = 2'd0; // Use data from register file
+  localparam bm_imm   = 2'd1; // Use sign-extended immediate
+  localparam bm_csr   = 2'd2; // Use from mngr data
 
   // ALU Function
 
@@ -360,9 +364,9 @@ module lab2_proc_ProcAltCtrlVRTL
     input logic [1:0] cs_jp_type,
     input logic [2:0] cs_br_type,
     input logic [2:0] cs_imm_type,
-    input logic [2:0] cs_op1_sel,
+    input logic       cs_op1_sel,
     input logic       cs_rs1_en,
-    input logic [2:0] cs_op2_sel,
+    input logic [1:0] cs_op2_sel,
     input logic       cs_rs2_en,
     input logic [3:0] cs_alu_fn,
     input logic [1:0] cs_ex_result_sel,
@@ -549,25 +553,37 @@ module lab2_proc_ProcAltCtrlVRTL
 
   // bypass logic, forward the signal from later stages
 
-    always_comb begin
+  always_comb begin
     if ( val_D && bypass_waddr_X_rs1_D ) begin
-      op1_sel_D     =  am_X;
-    end 
+      op1_bypass_sel_D     =  bp_X;
+    end
     else if ( val_D && bypass_waddr_M_rs1_D ) begin
-      op1_sel_D     =  am_M;
-    end 
+      op1_bypass_sel_D     =  bp_M;
+    end
     else if ( val_D && bypass_waddr_W_rs1_D ) begin
-      op1_sel_D     =  am_W;
+      op1_bypass_sel_D     =  bp_W;
+    end
+    else if ( val_D ) begin
+      op1_bypass_sel_D     =  bp_rf;
+    end
+    else begin
+      op1_bypass_sel_D     =  bp_x;
     end
     
     if ( val_D && bypass_waddr_X_rs2_D ) begin
-      op2_sel_D     =  bm_X;
+      op2_bypass_sel_D     =  bp_X;
     end
     else if ( val_D && bypass_waddr_M_rs2_D ) begin
-      op2_sel_D     =  bm_M;
+      op2_bypass_sel_D     =  bp_M;
     end
     else if ( val_D && bypass_waddr_W_rs2_D ) begin
-      op2_sel_D     =  bm_W;
+      op2_bypass_sel_D     =  bp_W;
+    end
+    else if ( val_D ) begin
+      op2_bypass_sel_D     =  bp_rf;
+    end
+    else begin
+      op2_bypass_sel_D     =  bp_x;
     end
   end
   

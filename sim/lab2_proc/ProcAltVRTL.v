@@ -126,8 +126,10 @@ module lab2_proc_ProcAltVRTL
   logic [1:0]  pc_sel_F;
 
   logic        reg_en_D;
-  logic [2:0]  op1_sel_D;
-  logic [2:0]  op2_sel_D;
+  logic [1:0]  op1_bypass_sel_D;
+  logic [1:0]  op2_bypass_sel_D;
+  logic        op1_sel_D;
+  logic [1:0]  op2_sel_D;
   logic [1:0]  csrr_sel_D;
   logic [2:0]  imm_type_D;
 
@@ -212,7 +214,6 @@ module lab2_proc_ProcAltVRTL
     // Data Memory Port
 
     .dmemreq_msg_type       (dmemreq_msg_type),
-    
     .dmemreq_val            (dmemreq_enq_val),
     .dmemreq_rdy            (dmemreq_enq_rdy),
     .dmemresp_val           (dmemresp_val),
@@ -238,6 +239,8 @@ module lab2_proc_ProcAltVRTL
     .pc_sel_F               (pc_sel_F),
 
     .reg_en_D               (reg_en_D),
+    .op1_bypass_sel_D       (op1_bypass_sel_D),
+    .op2_bypass_sel_D       (op2_bypass_sel_D),
     .op1_sel_D              (op1_sel_D),
     .op2_sel_D              (op2_sel_D),
     .csrr_sel_D             (csrr_sel_D),
@@ -365,6 +368,8 @@ module lab2_proc_ProcAltVRTL
     .pc_sel_F                (pc_sel_F),
 
     .reg_en_D                (reg_en_D),
+    .op1_bypass_sel_D        (op1_bypass_sel_D),
+    .op2_bypass_sel_D        (op2_bypass_sel_D),
     .op1_sel_D               (op1_sel_D),
     .op2_sel_D               (op2_sel_D),
     .csrr_sel_D              (csrr_sel_D),
