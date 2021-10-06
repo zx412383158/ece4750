@@ -8,6 +8,7 @@
 `include "vc/mem-msgs.v"
 `include "vc/trace.v"
 
+`include "lab3_mem/Definitions.sv"
 `include "lab3_mem/BlockingCacheBaseCtrlVRTL.v"
 `include "lab3_mem/BlockingCacheBaseDpathVRTL.v"
 
@@ -57,18 +58,29 @@ module lab3_mem_BlockingCacheBaseVRTL
   output logic           memresp_rdy
 );
 
-  localparam size = 256; // Number of bytes in the cache
-  localparam dbw  = 32;  // Short name for data bitwidth
-  localparam abw  = 32;  // Short name for addr bitwidth
-  localparam clw  = 128; // Short name for cacheline bitwidth
-
   // calculate the index shift amount based on number of banks
 
   localparam c_idx_shamt = $clog2( p_num_banks );
 
-  //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  // LAB TASK: Define wires
-  //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  logic              cachereq_en;
+  logic              memresp_en;
+  logic              evict_addr_reg_en;
+  logic              read_data_reg_en;
+  logic [2:0]        read_word_mux_sel;      // select by offset field
+  logic              write_data_mux_sel;     // mem or proc
+  logic              memreq_addr_mux_sel;    // refill or evict
+  logic              tag_array_ren;
+  logic              tag_array_wen;
+  logic              data_array_ren;
+  logic              data_array_wen;
+  logic [15:0]       data_array_wben;
+  logic              hit;
+  logic [2:0]        cacheresp_type;
+  logic [2:0]        memreq_type;
+
+  logic [2:0]        cachereq_type;
+  logic [31:0]       cachereq_addr;
+  logic              tag_match;
 
   //----------------------------------------------------------------------
   // Control
@@ -80,32 +92,57 @@ module lab3_mem_BlockingCacheBaseVRTL
   )
   ctrl
   (
-   .clk               (clk),
-   .reset             (reset),
+    .clk               (clk),
+    .reset             (reset),
 
-   // Cache Request
+    // Cache Request
 
-   .cachereq_val      (cachereq_val),
-   .cachereq_rdy      (cachereq_rdy),
+    .cachereq_val      (cachereq_val),
+    .cachereq_rdy      (cachereq_rdy),
 
-   // Cache Response
+    // Cache Response
 
-   .cacheresp_val     (cacheresp_val),
-   .cacheresp_rdy     (cacheresp_rdy),
+    .cacheresp_val     (cacheresp_val),
+    .cacheresp_rdy     (cacheresp_rdy),
 
-   // Memory Request
+    // Memory Request
 
-   .memreq_val        (memreq_val),
-   .memreq_rdy        (memreq_rdy),
+    .memreq_val        (memreq_val),
+    .memreq_rdy        (memreq_rdy),
 
-   // Memory Response
+    // Memory Response
 
-   .memresp_val       (memresp_val),
-   .memresp_rdy       (memresp_rdy),
+    .memresp_val       (memresp_val),
+    .memresp_rdy       (memresp_rdy),
 
-   //'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-   // LAB TASK: Connect control unit
-   //'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    // control signals (ctrl->dpath)
+
+    .cachereq_en        (cachereq_en),
+    .memresp_en         (memresp_en),
+    .evict_addr_reg_en  (evict_addr_reg_en),
+    .read_data_reg_en   (read_data_reg_en),
+
+    .read_word_mux_sel  (read_word_mux_sel),      // select by offset field
+    .write_data_mux_sel (write_data_mux_sel),     // mem or proc
+    .memreq_addr_mux_sel(memreq_addr_mux_sel),    // refill or evict
+    
+    .tag_array_ren      (tag_array_ren),
+    .tag_array_wen      (tag_array_wen),
+
+    .data_array_ren     (data_array_ren),
+    .data_array_wen     (data_array_wen),
+    .data_array_wben    (data_array_wben),
+
+    .hit                (hit),
+    .cacheresp_type     (cacheresp_type),
+    .memreq_type        (memreq_type),
+
+    // status signals (dpath->ctrl)
+
+    .cachereq_type      (cachereq_type),
+    .cachereq_addr      (cachereq_addr),
+
+    .tag_match          (tag_match)
   );
 
   //----------------------------------------------------------------------
@@ -118,28 +155,53 @@ module lab3_mem_BlockingCacheBaseVRTL
   )
   dpath
   (
-   .clk               (clk),
-   .reset             (reset),
+    .clk               (clk),
+    .reset             (reset),
 
-   // Cache Request
+    // Cache Request
 
-   .cachereq_msg      (cachereq_msg),
+    .cachereq_msg      (cachereq_msg),
 
-   // Cache Response
+    // Cache Response
 
-   .cacheresp_msg     (cacheresp_msg),
+    .cacheresp_msg     (cacheresp_msg),
 
-   // Memory Request
+    // Memory Request
 
-   .memreq_msg        (memreq_msg),
+    .memreq_msg        (memreq_msg),
 
-   // Memory Response
+    // Memory Response
 
-   .memresp_msg       (memresp_msg),
+    .memresp_msg       (memresp_msg),
 
-   //'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-   // LAB TASK: Connect data path
-   //'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    // control signals (ctrl->dpath)
+
+    .cachereq_en        (cachereq_en),
+    .memresp_en         (memresp_en),
+    .evict_addr_reg_en  (evict_addr_reg_en),
+    .read_data_reg_en   (read_data_reg_en),
+
+    .read_word_mux_sel  (read_word_mux_sel),      // select by offset field
+    .write_data_mux_sel (write_data_mux_sel),     // mem or proc
+    .memreq_addr_mux_sel(memreq_addr_mux_sel),    // refill or evict
+    
+    .tag_array_ren      (tag_array_ren),
+    .tag_array_wen      (tag_array_wen),
+
+    .data_array_ren     (data_array_ren),
+    .data_array_wen     (data_array_wen),
+    .data_array_wben    (data_array_wben),
+
+    .hit                (hit),
+    .cacheresp_type     (cacheresp_type),
+    .memreq_type        (memreq_type),
+
+    // status signals (dpath->ctrl)
+
+    .cachereq_type      (cachereq_type),
+    .cachereq_addr      (cachereq_addr),
+
+    .tag_match          (tag_match)
 
   );
 
@@ -186,19 +248,16 @@ module lab3_mem_BlockingCacheBaseVRTL
   `VC_TRACE_BEGIN
   begin
 
-    // case ( ctrl.state_reg )
+    case ( ctrl.state )
 
-    //   ctrl.STATE_IDLE:                   vc_trace.append_str( trace_str, "(I )" );
-    //   ctrl.STATE_TAG_CHECK:              vc_trace.append_str( trace_str, "(TC)" );
-    //   ctrl.STATE_INIT_DATA_ACCESS:       vc_trace.append_str( trace_str, "(IN)" );
-    //   ctrl.STATE_WAIT:                   vc_trace.append_str( trace_str, "(W )" );
-    //   default:                           vc_trace.append_str( trace_str, "(? )" );
+      STATE_I  :             vc_trace.append_str( trace_str, "(I )" );
+      STATE_TC :             vc_trace.append_str( trace_str, "(TC)" );
+      STATE_IN :             vc_trace.append_str( trace_str, "(IN)" );
+      STATE_RD :             vc_trace.append_str( trace_str, "(RD)" );
+      STATE_W  :             vc_trace.append_str( trace_str, "(W )" );
+      default  :             vc_trace.append_str( trace_str, "(? )" );
 
-    // endcase
-
-    //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    // LAB TASK: Add line tracing
-    //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    endcase
 
   end
   `VC_TRACE_END

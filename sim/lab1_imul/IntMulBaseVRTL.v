@@ -65,7 +65,7 @@ module lab1_imul_IntMulBaseDpath
 endmodule
 
 //========================================================================
-// Integer Multiplier Fixed-Latency Datapath
+// Integer Multiplier Fixed-Latency Ctrl
 //========================================================================
 
 typedef enum logic [$clog2(3)-1:0] {
