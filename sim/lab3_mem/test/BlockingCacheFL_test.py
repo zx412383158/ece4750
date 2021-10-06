@@ -217,7 +217,7 @@ test_case_table_generic = mk_test_case_table([
   (                         "msg_func               mem_data_func         nbank stall lat src sink"),
   [ "read_hit_1word_clean",  read_hit_1word_clean,  None,                 0,    0.0,  0,  0,  0    ],
   # [ "read_hit_1word_4bank",  read_hit_1word_clean,  None,                 4,    0.0,  0,  0,  0    ],
-  # [ "read_miss_1word",       read_miss_1word_msg,   read_miss_1word_mem,  0,    0.0,  0,  0,  0    ],
+  [ "read_miss_1word",       read_miss_1word_msg,   read_miss_1word_mem,  0,    0.0,  0,  0,  0    ],
   [ "write_hit_1word_clean", write_hit_1word_clean, None,                 0,    0.0,  0,  0,  0    ],
 ])
 

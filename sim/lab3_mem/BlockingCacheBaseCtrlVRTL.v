@@ -159,10 +159,18 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
   logic tc2in;
   logic tc2rd;
   logic tc2wd;
+  logic tc2rr;
+
+  logic ru2rd;
+  logic ru2wd;
 
   assign tc2in    = (cachereq_type == `VC_MEM_RESP_MSG_TYPE_WRITE_INIT);
   assign tc2rd    = (cachereq_type == `VC_MEM_REQ_MSG_TYPE_READ) && match;
   assign tc2wd    = (cachereq_type == `VC_MEM_REQ_MSG_TYPE_WRITE) && match;
+  assign tc2rr    = !match && !dirty;
+
+  assign ru2rd    = (cachereq_type == `VC_MEM_REQ_MSG_TYPE_READ);
+  assign ru2wd    = (cachereq_type == `VC_MEM_REQ_MSG_TYPE_WRITE);
 
   always_comb begin
     
@@ -173,9 +181,14 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
       STATE_TC  : if(tc2in)           next_state = STATE_IN;
                   else if(tc2rd)      next_state = STATE_RD;
                   else if(tc2wd)      next_state = STATE_WD;
+                  else if(tc2rr)      next_state = STATE_RR;
       STATE_IN  :                     next_state = STATE_W;
       STATE_RD  :                     next_state = STATE_W;
-      STATE_WD  :                     next_state = STATE_W;    
+      STATE_WD  :                     next_state = STATE_W;
+      STATE_RR  : if(memreq_go)       next_state = STATE_RW;
+      STATE_RW  : if(memresp_go)      next_state = STATE_RU;
+      STATE_RU  : if(ru2rd)           next_state = STATE_RD;
+                  else if(ru2wd)      next_state = STATE_WD;
       STATE_W   : if(cacheresp_go)    next_state = STATE_I;
       default:                        next_state = STATE_I;
     endcase
@@ -208,6 +221,12 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
   localparam wd_c = 1'd0;
   localparam wd_m = 1'd1;
 
+  // Memory Request Address Mux Select
+
+  localparam ma_x = 1'dx;   // Don't care
+  localparam ma_e = 1'd0;   // evict cacheline
+  localparam ma_c = 1'd1;   // refill cahcheline
+
   // Data Array Wben
 
   localparam wb_n = 16'h0;
@@ -235,7 +254,7 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
 
     input logic [2:0]       cs_read_word_mux_sel,
     input logic             cs_write_data_mux_sel,
-    // input logic         cs_memreq_addr_mux_sel,
+    input logic         cs_memreq_addr_mux_sel,
 
     input logic [2:0]     cs_memreq_type
   );
@@ -258,7 +277,7 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
 
     read_word_mux_sel   = cs_read_word_mux_sel;
     write_data_mux_sel  = cs_write_data_mux_sel;
-    // memreq_addr_mux_sel = cs_memreq_addr_mux_sel;
+    memreq_addr_mux_sel = cs_memreq_addr_mux_sel;
     
     memreq_type         = cs_memreq_type;
   end
@@ -296,7 +315,7 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
   assign vd_v = rf_state | 2'b10;
   assign vd_d = rf_state | 2'b11;
   assign vd_c = rf_state & 2'b10;
-  assign rw_y = {offset[3:2], 1'b0};
+  assign rw_y = {1'b0, offset[3:2]};
 
   always_comb begin
     case (offset[3:2])
@@ -310,15 +329,18 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
 
   always_comb begin
     case ( state )
-      //               ev_reg rd_reg tag tag rf  rf  rf    data data data  r_word w_data  m_req
-      //               en     en     ren wen ren wen date  ren  wen  wben  muxsel muxsel  type
-      STATE_I   : cs0( n,     n,     n,  n,  n,  n,  vd_x, n,   n,   wb_n, rw_n,  wd_x,   nr );
-      STATE_TC  : cs0( n,     n,     y,  n,  y,  n,  vd_x, n,   n,   wb_n, rw_n,  wd_x,   nr );
-      STATE_IN  : cs0( n,     n,     n,  y,  n,  y,  vd_v, n,   y,   wb_y, rw_n,  wd_c,   nr );
-      STATE_RD  : cs0( n,     y,     n,  n,  n,  n,  vd_x, y,   n,   wb_n, rw_n,  wd_c,   nr );
-      STATE_WD  : cs0( n,     n,     n,  n,  n,  y,  vd_d, n,   y,   wb_y, rw_n,  wd_c,   nr );
-      STATE_W   : cs0( n,     n,     n,  n,  n,  n,  vd_x, n,   n,   wb_n, rw_y,  wd_x,   nr );
-      default   : cs0( n,     n,     n,  n,  n,  n,  vd_x, n,   n,   wb_n, rw_n,  wd_x,   nr );
+      //               ev_reg rd_reg tag tag rf  rf  rf    data data data  r_word w_data  m_addr m_req
+      //               en     en     ren wen ren wen date  ren  wen  wben  muxsel muxsel  muxsel type
+      STATE_I   : cs0( n,     n,     n,  n,  n,  n,  vd_x, n,   n,   wb_n, rw_n,  wd_x,   ma_x,  nr );
+      STATE_TC  : cs0( n,     n,     y,  n,  y,  n,  vd_x, n,   n,   wb_n, rw_n,  wd_x,   ma_x,  nr );
+      STATE_IN  : cs0( n,     n,     n,  y,  n,  y,  vd_v, n,   y,   wb_y, rw_n,  wd_c,   ma_x,  nr );
+      STATE_RD  : cs0( n,     y,     n,  n,  n,  n,  vd_x, y,   n,   wb_n, rw_n,  wd_c,   ma_x,  nr );
+      STATE_WD  : cs0( n,     n,     n,  n,  n,  y,  vd_d, n,   y,   wb_y, rw_n,  wd_c,   ma_x,  nr );
+      STATE_RR  : cs0( n,     n,     n,  n,  n,  n,  vd_x, n,   n,   wb_n, rw_n,  wd_x,   ma_c,  ld );
+      STATE_RW  : cs0( n,     n,     n,  n,  n,  n,  vd_x, n,   n,   wb_n, rw_n,  wd_x,   ma_x,  nr );
+      STATE_RU  : cs0( n,     n,     n,  y,  n,  y,  vd_v, n,   y,   wb_a, rw_n,  wd_m,   ma_x,  nr );
+      STATE_W   : cs0( n,     n,     n,  n,  n,  n,  vd_x, n,   n,   wb_n, rw_y,  wd_x,   ma_x,  nr );
+      default   : cs0( n,     n,     n,  n,  n,  n,  vd_x, n,   n,   wb_n, rw_n,  wd_x,   ma_x,  nr );
     endcase
   end
 
@@ -327,6 +349,8 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
       //               c_req c_resp m_resp m_req c_req m_resp
       //               rdy   val    rdy    val   en    en
       STATE_I   : cs1( y,    n,     n,     n,    y,    n );
+      STATE_RR  : cs1( n,    n,     n,     y,    n,    n );
+      STATE_RW  : cs1( n,    n,     y,     n,    n,    y );
       STATE_W   : cs1( n,    y,     n,     n,    n,    n );
       default   : cs1( n,    n,     n,     n,    n,    n );
       endcase
