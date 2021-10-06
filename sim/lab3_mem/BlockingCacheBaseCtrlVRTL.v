@@ -158,9 +158,11 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
 
   logic tc2in;
   logic tc2rd;
+  logic tc2wd;
 
   assign tc2in    = (cachereq_type == `VC_MEM_RESP_MSG_TYPE_WRITE_INIT);
   assign tc2rd    = (cachereq_type == `VC_MEM_REQ_MSG_TYPE_READ) && match;
+  assign tc2wd    = (cachereq_type == `VC_MEM_REQ_MSG_TYPE_WRITE) && match;
 
   always_comb begin
     
@@ -170,8 +172,10 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
       STATE_I   : if(cachereq_go)     next_state = STATE_TC;
       STATE_TC  : if(tc2in)           next_state = STATE_IN;
                   else if(tc2rd)      next_state = STATE_RD;
+                  else if(tc2wd)      next_state = STATE_WD;
       STATE_IN  :                     next_state = STATE_W;
-      STATE_RD  :                     next_state = STATE_W;     
+      STATE_RD  :                     next_state = STATE_W;
+      STATE_WD  :                     next_state = STATE_W;    
       STATE_W   : if(cacheresp_go)    next_state = STATE_I;
       default:                        next_state = STATE_I;
     endcase
@@ -312,6 +316,7 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
       STATE_TC  : cs0( n,     n,     y,  n,  y,  n,  vd_x, n,   n,   wb_n, rw_n,  wd_x,   nr );
       STATE_IN  : cs0( n,     n,     n,  y,  n,  y,  vd_v, n,   y,   wb_y, rw_n,  wd_c,   nr );
       STATE_RD  : cs0( n,     y,     n,  n,  n,  n,  vd_x, y,   n,   wb_n, rw_n,  wd_c,   nr );
+      STATE_WD  : cs0( n,     n,     n,  n,  n,  y,  vd_d, n,   y,   wb_y, rw_n,  wd_c,   nr );
       STATE_W   : cs0( n,     n,     n,  n,  n,  n,  vd_x, n,   n,   wb_n, rw_y,  wd_x,   nr );
       default   : cs0( n,     n,     n,  n,  n,  n,  vd_x, n,   n,   wb_n, rw_n,  wd_x,   nr );
     endcase
