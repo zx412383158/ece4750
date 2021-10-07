@@ -11,7 +11,6 @@ package definitions;
   localparam dbw  = 32;              // Short name for data bitwidth
   localparam abw  = 32;              // Short name for addr bitwidth
   localparam clw  = 128;             // Short name for cacheline bitwidth
-  localparam nway = 1;               // Short name for cache associate
   
   // cache controller states
 

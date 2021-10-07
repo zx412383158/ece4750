@@ -73,6 +73,7 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
  );
 
   // local parameters not meant to be set from outside
+  localparam nway = 1;               // Short name for cache associate
   localparam nbl  = size*8/clw;      // Number of blocks in the cache
   localparam nby  = nbl/nway;        // Number of blocks per way
   localparam idw  = $clog2(nby);     // Short name for idx bitwidth
