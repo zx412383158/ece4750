@@ -7,6 +7,7 @@
 
 `include "vc/mem-msgs.v"
 `include "vc/assert.v"
+`include "vc/regs.v"
 `include "vc/regfiles.v"
 
 `include "lab3_mem/Definitions.sv"
@@ -74,7 +75,7 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
   // local parameters not meant to be set from outside
   localparam nbl  = size*8/clw;      // Number of blocks in the cache
   localparam nby  = nbl/nway;        // Number of blocks per way
-  localparam idw  = $clog2(nby);     // Short name for index bitwidth
+  localparam idw  = $clog2(nby);     // Short name for idx bitwidth
   localparam ofw  = $clog2(clw/8);   // Short name for the offset bitwidth
   // In this lab, to simplify things, we always use all bits except for the
   // offset in the tag, rather than storing the "normal" 24 bits. This way,
@@ -82,19 +83,17 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
   // re-inserting the bank id into the address of a cacheline.
   localparam tgw  = abw - ofw;       // Short name for the tag bitwidth
 
+  logic [tgw-1:0] tag;
+  logic [idw-1:0] idx;
+  logic [ofw-1:0] offset;
+
+  assign tag    = cachereq_addr[abw-1:ofw];
+  assign idx    = cachereq_addr[idw+p_idx_shamt+ofw-1:p_idx_shamt+ofw];
+  assign offset = cachereq_addr[ofw-1:0];
+
   //========================================================================
   // val/dirty regfile
   //========================================================================
-
-  logic [`CACHE_ADDR_TAG_NBITS-1:0] tag;
-  logic [`CACHE_ADDR_INDEX_NBITS-1:0] index;
-  logic [`CACHE_ADDR_OFFSET_NBITS-1:0] offset;
-
-  assign tag = cachereq_addr[`CACHE_ADDR_TAG];
-  assign index = cachereq_addr[`CACHE_ADDR_INDEX];
-  assign offset = cachereq_addr[`CACHE_ADDR_OFFSET];
-
-  // val/dirty 
   logic       match;
   logic       rf_wen, rf_ren;
   logic [1:0] rf_state, rf_update;
@@ -107,29 +106,28 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
     .reset (reset),
 
     // Read port
-    .read_addr  (index),
+    .read_addr  (idx),
     .read_data  (rf_state),
 
     // Write port
     .write_en   (rf_wen),
-    .write_addr (index),
+    .write_addr (idx),
     .write_data (rf_update)
   );
 
-  vc_EnResetReg #(2, 0) val_dirty_reg
+  vc_EnResetReg #(1, 0) hit_reg
   (
     .clk    (clk),
     .reset  (reset),
     .en     (rf_ren),
-    .d      ({match,dirty}),
-    .q      (val_dirty_state)
+    .d      (match),
+    .q      (hit)
   );
   
   assign valid = rf_state[1];
   assign dirty = rf_state[0];
 
   assign match = valid && tag_match;
-  assign hit   = val_dirty_state[1];
 
   //========================================================================
   // State

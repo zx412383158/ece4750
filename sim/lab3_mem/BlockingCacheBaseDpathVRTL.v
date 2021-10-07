@@ -80,6 +80,14 @@ module lab3_mem_BlockingCacheBaseDpathVRTL
   // re-inserting the bank id into the address of a cacheline.
   localparam tgw  = abw - ofw;       // Short name for the tag bitwidth
 
+  logic [tgw-1:0] tag;
+  logic [idw-1:0] idx;
+  logic [ofw-1:0] offset;
+
+  assign tag    = cachereq_addr[abw-1:ofw];
+  assign idx    = cachereq_addr[idw+p_idx_shamt+ofw-1:p_idx_shamt+ofw];
+  assign offset = cachereq_addr[ofw-1:0];
+
   //--------------------------------------------------------------------
   // Input req
   //--------------------------------------------------------------------
@@ -141,8 +149,6 @@ module lab3_mem_BlockingCacheBaseDpathVRTL
   //--------------------------------------------------------------------
   // Tag array
   //--------------------------------------------------------------------
-  logic [idw-1:0] idx;
-  logic [tgw-1:0] target_tag;
   logic [tgw-1:0] tag_array_out;
 
   vc_CombinationalBitSRAM_1rw #(tgw, nbl) cache_tag_array
@@ -160,18 +166,15 @@ module lab3_mem_BlockingCacheBaseDpathVRTL
 
     .write_en   (tag_array_wen),
     .write_addr (idx),
-    .write_data (target_tag)
+    .write_data (tag)
   );
 
   vc_EqComparator #(tgw) cache_tag_comparator
   (
-    .in0    (target_tag),
+    .in0    (tag),
     .in1    (tag_array_out),
     .out    (tag_match)
   );
-
-  assign idx        = cachereq_addr[idw+p_idx_shamt+ofw-1:p_idx_shamt+ofw];
-  assign target_tag = cachereq_addr[abw-1:ofw];
 
   //--------------------------------------------------------------------
   // Data array
@@ -247,7 +250,7 @@ module lab3_mem_BlockingCacheBaseDpathVRTL
     .out  (memreq_msg.addr)
   );
 
-  assign refill_addr = {target_tag, {ofw{1'b0}}};
+  assign refill_addr = {tag, {ofw{1'b0}}};
   
   assign memreq_msg.type_   = memreq_type;
   assign memreq_msg.opaque  = 8'b0;

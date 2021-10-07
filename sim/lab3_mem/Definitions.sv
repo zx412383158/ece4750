@@ -2,18 +2,6 @@
 `define DEFS_DONE
 
 //========================================================================
-// Cache address field
-//========================================================================
-
-`define CACHE_ADDR_TAG    31:8
-`define CACHE_ADDR_INDEX  7:4
-`define CACHE_ADDR_OFFSET 3:0
-
-`define CACHE_ADDR_TAG_NBITS      24
-`define CACHE_ADDR_INDEX_NBITS    4
-`define CACHE_ADDR_OFFSET_NBITS   4
-
-//========================================================================
 // Cache design parameter/struct
 //========================================================================
 
