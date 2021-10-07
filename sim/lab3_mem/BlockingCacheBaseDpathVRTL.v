@@ -170,7 +170,7 @@ module lab3_mem_BlockingCacheBaseDpathVRTL
     .out    (tag_match)
   );
 
-  assign idx        = cachereq_addr[idw+ofw-1:ofw];
+  assign idx        = cachereq_addr[idw+p_idx_shamt+ofw-1:p_idx_shamt+ofw];
   assign target_tag = cachereq_addr[abw-1:ofw];
 
   //--------------------------------------------------------------------
