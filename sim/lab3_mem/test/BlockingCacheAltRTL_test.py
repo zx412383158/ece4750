@@ -59,7 +59,7 @@ def test_generic( test_params, dump_vcd ):
   if test_params.mem_data_func != None:
     harness.load( mem[::2], mem[1::2] )
   # Run the test
-  run_sim( harness, dump_vcd )
+  run_sim( harness )
 
 #-------------------------------------------------------------------------
 # Tests only for two-way set-associative cache
@@ -80,6 +80,6 @@ def test_set_assoc( test_params, dump_vcd ):
   if test_params.mem_data_func != None:
     harness.load( mem[::2], mem[1::2] )
   # Run the test
-  run_sim( harness, dump_vcd )
+  run_sim( harness )
 
 #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''

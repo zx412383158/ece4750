@@ -57,18 +57,33 @@ module lab3_mem_BlockingCacheAltVRTL
   output logic           memresp_rdy
 );
 
-  localparam size = 256; // Number of bytes in the cache
-  localparam dbw  = 32;  // Short name for data bitwidth
-  localparam abw  = 32;  // Short name for addr bitwidth
-  localparam clw  = 128; // Short name for cacheline bitwidth
-
   // calculate the index shift amount based on number of banks
 
   localparam c_idx_shamt = $clog2( p_num_banks );
 
-  //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  // LAB TASK: Define temporary wires
-  //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  logic              cachereq_en;
+  logic              memresp_en;
+  logic              evict_addr_reg_en;
+  logic              read_data_reg_en;
+  logic              cacheresp_data_mux_sel; // select by offset field
+  logic              write_data_mux_sel;     // mem or proc
+  logic              memreq_addr_mux_sel;    // refill or evict
+  logic              cache_way_mux_sel;
+  logic              tag_array_ren;
+  logic              tag_array0_wen;
+  logic              tag_array1_wen;
+  logic              data_array_ren;
+  logic [clw/8-1:0]  data_array_wben;
+  logic              data_array0_wen;
+  logic              data_array1_wen;
+  logic              hit;
+  logic [2:0]        cacheresp_type;
+  logic [2:0]        memreq_type;
+
+  logic [2:0]        cachereq_type;
+  logic [31:0]       cachereq_addr;
+  logic              tag_match0;
+  logic              tag_match1;
 
   //----------------------------------------------------------------------
   // Control
@@ -80,33 +95,7 @@ module lab3_mem_BlockingCacheAltVRTL
   )
   ctrl
   (
-   .clk               (clk),
-   .reset             (reset),
-
-   // Cache Request
-
-   .cachereq_val      (cachereq_val),
-   .cachereq_rdy      (cachereq_rdy),
-
-   // Cache Response
-
-   .cacheresp_val     (cacheresp_val),
-   .cacheresp_rdy     (cacheresp_rdy),
-
-   // Memory Request
-
-   .memreq_val        (memreq_val),
-   .memreq_rdy        (memreq_rdy),
-
-   // Memory Response
-
-   .memresp_val       (memresp_val),
-   .memresp_rdy       (memresp_rdy),
-
-   //'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-   // LAB TASK: Connect additional signals
-   //'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+    .*
   );
 
   //----------------------------------------------------------------------
@@ -119,29 +108,7 @@ module lab3_mem_BlockingCacheAltVRTL
   )
   dpath
   (
-   .clk               (clk),
-   .reset             (reset),
-
-   // Cache Request
-
-   .cachereq_msg      (cachereq_msg),
-
-   // Cache Response
-
-   .cacheresp_msg     (cacheresp_msg),
-
-   // Memory Request
-
-   .memreq_msg        (memreq_msg),
-
-   // Memory Response
-
-   .memresp_msg       (memresp_msg),
-
-   //'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-   // LAB TASK: Connect additional ports
-   //'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+    .*
   );
 
 
@@ -187,9 +154,23 @@ module lab3_mem_BlockingCacheAltVRTL
   `VC_TRACE_BEGIN
   begin
 
-    //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    // LAB TASK: Add line tracing
-    //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    case ( ctrl.state )
+
+      STATE_I  :              vc_trace.append_str( trace_str, "(I )" );
+      STATE_TC :              vc_trace.append_str( trace_str, "(TC)" );
+      STATE_IN :              vc_trace.append_str( trace_str, "(IN)" );
+      STATE_RD :              vc_trace.append_str( trace_str, "(RD)" );
+      STATE_WD :              vc_trace.append_str( trace_str, "(WD)" );
+      STATE_EP :              vc_trace.append_str( trace_str, "(EP)" );
+      STATE_ER :              vc_trace.append_str( trace_str, "(ER)" );
+      STATE_EW :              vc_trace.append_str( trace_str, "(EW)" );
+      STATE_RR :              vc_trace.append_str( trace_str, "(RR)" );
+      STATE_RW :              vc_trace.append_str( trace_str, "(RW)" );
+      STATE_RU :              vc_trace.append_str( trace_str, "(RU)" );
+      STATE_W  :              vc_trace.append_str( trace_str, "(W )" );
+      default  :              vc_trace.append_str( trace_str, "(? )" );
+
+    endcase
 
   end
   `VC_TRACE_END

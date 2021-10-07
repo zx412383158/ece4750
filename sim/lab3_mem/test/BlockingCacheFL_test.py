@@ -212,10 +212,10 @@ def write_miss_1word_mem( base_addr ):
   ]
 
 #-------------------------------------------------------------------------
-# Test Case: evict path
+# Test Case: evict path -- for direct-mapped cache
 #-------------------------------------------------------------------------
 
-def evict_1word_msg( base_addr ):
+def evict_1word_dmap_msg( base_addr ):
   return [
     #    type  opq   addr      len  data               type  opq test len  data
     req( 'rd', 0x00, 0x00000000, 0, 0          ), resp('rd', 0x00, 0, 0,   0xdeadbeef ), # read word  0x00000000
@@ -226,12 +226,35 @@ def evict_1word_msg( base_addr ):
 
   # Data to be loaded into memory before running the test
 
-def evict_1word_mem( base_addr ):
+def evict_1word_dmap_mem( base_addr ):
   return [
     # addr      data (in int)
     0x00000000, 0xdeadbeef,
     0x00000100, 0x00c0ffee,
   ]
+
+#-------------------------------------------------------------------------
+# Test Case: evict path -- for set-associative cache
+#-------------------------------------------------------------------------
+
+def evict_1word_asso_msg( base_addr ):
+  return [
+    #    type  opq   addr      len  data               type  opq test len  data
+    req( 'rd', 0x00, 0x00000000, 0, 0          ), resp('rd', 0x00, 0, 0,   0xdeadbeef ), # read word  0x00000000
+    req( 'wr', 0x01, 0x00000000, 0, 0xbeefbeeb ), resp('wr', 0x01, 1, 0,   0          ), # dirty word  0x00000000
+    req( 'rd', 0x02, 0x00000100, 0, 0          ), resp('rd', 0x02, 0, 0,   0x00c0ffee ), # evict word  0x00000000
+    req( 'rd', 0x03, 0x00000000, 0, 0          ), resp('rd', 0x03, 1, 0,   0xbeefbeeb ), # read word  0x00000000
+  ]
+
+  # Data to be loaded into memory before running the test
+
+def evict_1word_asso_mem( base_addr ):
+  return [
+    # addr      data (in int)
+    0x00000000, 0xdeadbeef,
+    0x00000100, 0x00c0ffee,
+  ]
+
 
 #----------------------------------------------------------------------
 # Banked cache test
@@ -244,10 +267,6 @@ def evict_1word_mem( base_addr ):
 # with no bank bits and a design has one/two bank bits by looking at cache
 # request hit/miss status.
 
-#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# LAB TASK:
-#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
 #-------------------------------------------------------------------------
 # Test table for generic test
 #-------------------------------------------------------------------------
@@ -255,11 +274,9 @@ def evict_1word_mem( base_addr ):
 test_case_table_generic = mk_test_case_table([
   (                         "msg_func               mem_data_func         nbank stall lat src sink"),
   [ "read_hit_1word_clean",  read_hit_1word_clean,  None,                 0,    0.0,  0,  0,  0    ],
-  [ "read_hit_1word_4bank",  read_hit_1word_clean,  None,                 4,    0.0,  0,  0,  0    ],
   [ "read_miss_1word",       read_miss_1word_msg,   read_miss_1word_mem,  0,    0.0,  0,  0,  0    ],
   [ "write_hit_1word_clean", write_hit_1word_clean, None,                 0,    0.0,  0,  0,  0    ],
   [ "write_miss_1word",      write_miss_1word_msg,  write_miss_1word_mem, 0,    0.0,  0,  0,  0    ],
-  [ "evict_1word",           evict_1word_msg,       evict_1word_mem,      0,    0.0,  0,  0,  0    ],
 ])
 
 @pytest.mark.parametrize( **test_case_table_generic )
@@ -284,13 +301,9 @@ def test_generic( test_params, dump_vcd ):
 #-------------------------------------------------------------------------
 
 test_case_table_set_assoc = mk_test_case_table([
-  (                             "msg_func        mem_data_func    nbank stall lat src sink"),
-  [ "read_hit_asso",             read_hit_asso,  None,            0,    0.0,  0,  0,  0    ],
-
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # LAB TASK: Add test cases to this table
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+  (                         "msg_func              mem_data_func          nbank stall lat src sink"),
+  [ "read_hit_asso",         read_hit_asso,        None,                  0,    0.0,  0,  0,  0    ],
+  [ "evict_1word_asso",      evict_1word_asso_msg, evict_1word_asso_mem,  0,    0.0,  0,  0,  0    ],
 ])
 
 @pytest.mark.parametrize( **test_case_table_set_assoc )
@@ -316,13 +329,9 @@ def test_set_assoc( test_params, dump_vcd ):
 #-------------------------------------------------------------------------
 
 test_case_table_dir_mapped = mk_test_case_table([
-  (                                  "msg_func              mem_data_func          nbank stall lat src sink"),
-  [ "read_hit_dmap",                  read_hit_dmap,        None,                  0,    0.0,  0,  0,  0    ],
-
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # LAB TASK: Add test cases to this table
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+  (                         "msg_func              mem_data_func         nbank stall lat src sink"),
+  [ "read_hit_dmap",         read_hit_dmap,        None,                 0,    0.0,  0,  0,  0    ],
+  [ "evict_1word_dmap",      evict_1word_dmap_msg, evict_1word_dmap_mem, 0,    0.0,  0,  0,  0    ],
 ])
 
 @pytest.mark.parametrize( **test_case_table_dir_mapped )
