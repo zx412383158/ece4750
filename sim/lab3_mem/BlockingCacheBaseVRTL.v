@@ -250,12 +250,19 @@ module lab3_mem_BlockingCacheBaseVRTL
 
     case ( ctrl.state )
 
-      STATE_I  :             vc_trace.append_str( trace_str, "(I )" );
-      STATE_TC :             vc_trace.append_str( trace_str, "(TC)" );
-      STATE_IN :             vc_trace.append_str( trace_str, "(IN)" );
-      STATE_RD :             vc_trace.append_str( trace_str, "(RD)" );
-      STATE_W  :             vc_trace.append_str( trace_str, "(W )" );
-      default  :             vc_trace.append_str( trace_str, "(? )" );
+      STATE_I  :              vc_trace.append_str( trace_str, "(I )" );
+      STATE_TC :              vc_trace.append_str( trace_str, "(TC)" );
+      STATE_IN :              vc_trace.append_str( trace_str, "(IN)" );
+      STATE_RD :              vc_trace.append_str( trace_str, "(RD)" );
+      STATE_WD :              vc_trace.append_str( trace_str, "(WD)" );
+      STATE_EP :              vc_trace.append_str( trace_str, "(EP)" );
+      STATE_ER :              vc_trace.append_str( trace_str, "(ER)" );
+      STATE_EW :              vc_trace.append_str( trace_str, "(EW)" );
+      STATE_RR :              vc_trace.append_str( trace_str, "(RR)" );
+      STATE_RW :              vc_trace.append_str( trace_str, "(RW)" );
+      STATE_RU :              vc_trace.append_str( trace_str, "(RU)" );
+      STATE_W  :              vc_trace.append_str( trace_str, "(W )" );
+      default  :              vc_trace.append_str( trace_str, "(? )" );
 
     endcase
 

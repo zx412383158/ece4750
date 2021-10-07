@@ -190,9 +190,48 @@ def read_miss_1word_mem( base_addr ):
     0x00000004, 0x00c0ffee,
   ]
 
-#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# LAB TASK: Add more test cases
-#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#-------------------------------------------------------------------------
+# Test Case: write miss path
+#-------------------------------------------------------------------------
+
+def write_miss_1word_msg( base_addr ):
+  return [
+    #    type  opq   addr      len  data               type  opq test len  data
+    req( 'wr', 0x00, 0x00000000, 0, 0xbeefbeeb ), resp('wr', 0x00, 0, 0,   0          ), # write word  0x00000000
+    req( 'rd', 0x01, 0x00000000, 0, 0          ), resp('rd', 0x01, 1, 0,   0xbeefbeeb ), # read word  0x00000000
+    req( 'rd', 0x03, 0x00000004, 0, 0          ), resp('rd', 0x03, 1, 0,   0x00c0ffee ), # read word  0x00000004
+  ]
+
+# Data to be loaded into memory before running the test
+
+def write_miss_1word_mem( base_addr ):
+  return [
+    # addr      data (in int)
+    0x00000000, 0xdeadbeef,
+    0x00000004, 0x00c0ffee,
+  ]
+
+#-------------------------------------------------------------------------
+# Test Case: evict path
+#-------------------------------------------------------------------------
+
+def evict_1word_msg( base_addr ):
+  return [
+    #    type  opq   addr      len  data               type  opq test len  data
+    req( 'rd', 0x00, 0x00000000, 0, 0          ), resp('rd', 0x00, 0, 0,   0xdeadbeef ), # read word  0x00000000
+    req( 'wr', 0x01, 0x00000000, 0, 0xbeefbeeb ), resp('wr', 0x01, 1, 0,   0          ), # dirty word  0x00000000
+    req( 'rd', 0x02, 0x00000100, 0, 0          ), resp('rd', 0x02, 0, 0,   0x00c0ffee ), # evict word  0x00000000
+    req( 'rd', 0x03, 0x00000000, 0, 0          ), resp('rd', 0x03, 0, 0,   0xbeefbeeb ), # read word  0x00000000
+  ]
+
+  # Data to be loaded into memory before running the test
+
+def evict_1word_mem( base_addr ):
+  return [
+    # addr      data (in int)
+    0x00000000, 0xdeadbeef,
+    0x00000100, 0x00c0ffee,
+  ]
 
 #----------------------------------------------------------------------
 # Banked cache test
@@ -219,6 +258,8 @@ test_case_table_generic = mk_test_case_table([
   # [ "read_hit_1word_4bank",  read_hit_1word_clean,  None,                 4,    0.0,  0,  0,  0    ],
   [ "read_miss_1word",       read_miss_1word_msg,   read_miss_1word_mem,  0,    0.0,  0,  0,  0    ],
   [ "write_hit_1word_clean", write_hit_1word_clean, None,                 0,    0.0,  0,  0,  0    ],
+  [ "write_miss_1word",      write_miss_1word_msg,  write_miss_1word_mem, 0,    0.0,  0,  0,  0    ],
+  [ "evict_1word",           evict_1word_msg,       evict_1word_mem,      0,    0.0,  0,  0,  0    ],
 ])
 
 @pytest.mark.parametrize( **test_case_table_generic )
