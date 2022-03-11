@@ -47,7 +47,7 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
   output  logic              evict_addr_reg_en,
   output  logic              read_data_reg_en,
 
-  output  logic [2:0]        read_word_mux_sel,      // select by offset field
+  output  logic              cacheresp_data_mux_sel,
   output  logic              write_data_mux_sel,     // mem or proc
   output  logic              memreq_addr_mux_sel,    // refill or evict
   
@@ -218,7 +218,9 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
 
   // Readword Mux Select
 
-  localparam rw_n = 3'd4;
+  localparam rw_n = 1'b0;
+  localparam rw_y = 1'b1;
+
 
   // Write Data Mux Select
 
@@ -257,34 +259,34 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
     input logic             cs_data_array_wen,
     input logic [clw/8-1:0] cs_data_array_wben,
 
-    input logic [2:0]       cs_read_word_mux_sel,
+    input logic             cs_cacheresp_data_mux_sel,
     input logic             cs_write_data_mux_sel,
-    input logic         cs_memreq_addr_mux_sel,
+    input logic             cs_memreq_addr_mux_sel,
 
-    input logic [2:0]     cs_memreq_type
+    input logic [2:0]       cs_memreq_type
   );
   begin
     
 
-    evict_addr_reg_en   = cs_evict_addr_reg_en;
-    read_data_reg_en    = cs_read_data_reg_en;
+    evict_addr_reg_en       = cs_evict_addr_reg_en;
+    read_data_reg_en        = cs_read_data_reg_en;
 
-    tag_array_ren       = cs_tag_array_ren;
-    tag_array_wen       = cs_tag_array_wen;
+    tag_array_ren           = cs_tag_array_ren;
+    tag_array_wen           = cs_tag_array_wen;
 
-    rf_ren              = cs_rf_ren;
-    rf_wen              = cs_rf_wen;
-    rf_update           = cs_rf_update;
+    rf_ren                  = cs_rf_ren;
+    rf_wen                  = cs_rf_wen;
+    rf_update               = cs_rf_update;
 
-    data_array_ren      = cs_data_array_ren;
-    data_array_wen      = cs_data_array_wen;
-    data_array_wben     = cs_data_array_wben;
+    data_array_ren          = cs_data_array_ren;
+    data_array_wen          = cs_data_array_wen;
+    data_array_wben         = cs_data_array_wben;
 
-    read_word_mux_sel   = cs_read_word_mux_sel;
-    write_data_mux_sel  = cs_write_data_mux_sel;
-    memreq_addr_mux_sel = cs_memreq_addr_mux_sel;
+    cacheresp_data_mux_sel  = cs_cacheresp_data_mux_sel;
+    write_data_mux_sel      = cs_write_data_mux_sel;
+    memreq_addr_mux_sel     = cs_memreq_addr_mux_sel;
     
-    memreq_type         = cs_memreq_type;
+    memreq_type             = cs_memreq_type;
   end
   endtask
 
@@ -314,13 +316,11 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
   logic [1:0]   vd_v;
   logic [1:0]   vd_d;
   logic [1:0]   vd_c;
-  logic [2:0]   rw_y;
   logic [15:0]  wb_y;
 
   assign vd_v = rf_state | 2'b10;
   assign vd_d = rf_state | 2'b11;
   assign vd_c = rf_state & 2'b10;
-  assign rw_y = {1'b0, offset[3:2]};
 
   always_comb begin
     case (offset[3:2])
@@ -334,7 +334,7 @@ module lab3_mem_BlockingCacheBaseCtrlVRTL
 
   always_comb begin
     case ( state )
-      //               ev_reg rd_reg tag tag rf  rf  rf    data data data  r_word w_data  m_addr m_req
+      //               ev_reg rd_reg tag tag rf  rf  rf    data data data  c_data w_data  m_addr m_req
       //               en     en     ren wen ren wen date  ren  wen  wben  muxsel muxsel  muxsel type
       STATE_I   : cs0( n,     n,     n,  n,  n,  n,  vd_x, n,   n,   wb_n, rw_n,  wd_x,   ma_x,  nr );
       STATE_TC  : cs0( n,     n,     y,  n,  y,  n,  vd_x, n,   n,   wb_n, rw_n,  wd_x,   ma_x,  nr );

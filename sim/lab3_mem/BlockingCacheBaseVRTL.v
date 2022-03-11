@@ -66,7 +66,7 @@ module lab3_mem_BlockingCacheBaseVRTL
   logic              memresp_en;
   logic              evict_addr_reg_en;
   logic              read_data_reg_en;
-  logic [2:0]        read_word_mux_sel;      // select by offset field
+  logic              cacheresp_data_mux_sel;
   logic              write_data_mux_sel;     // mem or proc
   logic              memreq_addr_mux_sel;    // refill or evict
   logic              tag_array_ren;
@@ -92,57 +92,7 @@ module lab3_mem_BlockingCacheBaseVRTL
   )
   ctrl
   (
-    .clk               (clk),
-    .reset             (reset),
-
-    // Cache Request
-
-    .cachereq_val      (cachereq_val),
-    .cachereq_rdy      (cachereq_rdy),
-
-    // Cache Response
-
-    .cacheresp_val     (cacheresp_val),
-    .cacheresp_rdy     (cacheresp_rdy),
-
-    // Memory Request
-
-    .memreq_val        (memreq_val),
-    .memreq_rdy        (memreq_rdy),
-
-    // Memory Response
-
-    .memresp_val       (memresp_val),
-    .memresp_rdy       (memresp_rdy),
-
-    // control signals (ctrl->dpath)
-
-    .cachereq_en        (cachereq_en),
-    .memresp_en         (memresp_en),
-    .evict_addr_reg_en  (evict_addr_reg_en),
-    .read_data_reg_en   (read_data_reg_en),
-
-    .read_word_mux_sel  (read_word_mux_sel),      // select by offset field
-    .write_data_mux_sel (write_data_mux_sel),     // mem or proc
-    .memreq_addr_mux_sel(memreq_addr_mux_sel),    // refill or evict
-    
-    .tag_array_ren      (tag_array_ren),
-    .tag_array_wen      (tag_array_wen),
-
-    .data_array_ren     (data_array_ren),
-    .data_array_wen     (data_array_wen),
-    .data_array_wben    (data_array_wben),
-
-    .hit                (hit),
-    .cacheresp_type     (cacheresp_type),
-    .memreq_type        (memreq_type),
-
-    // status signals (dpath->ctrl)
-
-    .cachereq_type      (cachereq_type),
-    .cachereq_addr      (cachereq_addr),
-
-    .tag_match          (tag_match)
+    .*
   );
 
   //----------------------------------------------------------------------
@@ -155,54 +105,7 @@ module lab3_mem_BlockingCacheBaseVRTL
   )
   dpath
   (
-    .clk               (clk),
-    .reset             (reset),
-
-    // Cache Request
-
-    .cachereq_msg      (cachereq_msg),
-
-    // Cache Response
-
-    .cacheresp_msg     (cacheresp_msg),
-
-    // Memory Request
-
-    .memreq_msg        (memreq_msg),
-
-    // Memory Response
-
-    .memresp_msg       (memresp_msg),
-
-    // control signals (ctrl->dpath)
-
-    .cachereq_en        (cachereq_en),
-    .memresp_en         (memresp_en),
-    .evict_addr_reg_en  (evict_addr_reg_en),
-    .read_data_reg_en   (read_data_reg_en),
-
-    .read_word_mux_sel  (read_word_mux_sel),      // select by offset field
-    .write_data_mux_sel (write_data_mux_sel),     // mem or proc
-    .memreq_addr_mux_sel(memreq_addr_mux_sel),    // refill or evict
-    
-    .tag_array_ren      (tag_array_ren),
-    .tag_array_wen      (tag_array_wen),
-
-    .data_array_ren     (data_array_ren),
-    .data_array_wen     (data_array_wen),
-    .data_array_wben    (data_array_wben),
-
-    .hit                (hit),
-    .cacheresp_type     (cacheresp_type),
-    .memreq_type        (memreq_type),
-
-    // status signals (dpath->ctrl)
-
-    .cachereq_type      (cachereq_type),
-    .cachereq_addr      (cachereq_addr),
-
-    .tag_match          (tag_match)
-
+    .*
   );
 
 

@@ -44,7 +44,7 @@ module lab3_mem_BlockingCacheBaseDpathVRTL
   input  logic              evict_addr_reg_en,
   input  logic              read_data_reg_en,
 
-  input  logic [2:0]        read_word_mux_sel,      // select by offset field
+  input  logic              cacheresp_data_mux_sel,
   input  logic              write_data_mux_sel,     // mem or proc
   input  logic              memreq_addr_mux_sel,    // refill or evict
 
@@ -261,23 +261,31 @@ module lab3_mem_BlockingCacheBaseDpathVRTL
   //--------------------------------------------------------------------
   // cache resp
   //-------------------------------------------------------------------- 
+  logic [dbw-1:0] read_word;
 
   // read word select mux
-  vc_Mux5 #(dbw) read_word_mux
+  vc_Mux4 #(dbw) read_word_mux
   (
     .in0  (read_data[31:0]),
     .in1  (read_data[63:32]),
     .in2  (read_data[95:64]),
     .in3  (read_data[127:96]),
-    .in4  (32'b0),
-    .sel  (read_word_mux_sel),
+    .sel  (offset[3:2]),
+    .out  (read_word)
+  );
+
+  vc_Mux2 #(abw) cacheresp_data_mux
+  (
+    .in0  (0),
+    .in1  (read_word),
+    .sel  (cacheresp_data_mux_sel),
     .out  (cacheresp_msg.data)
   );
 
   assign cacheresp_msg.type_  = cacheresp_type;
   assign cacheresp_msg.opaque = cachereq_opaque;
-  assign cacheresp_msg.len  = 2'b0;
-  assign cacheresp_msg.test = {1'b0, hit};
+  assign cacheresp_msg.len    = 2'b0;
+  assign cacheresp_msg.test   = {1'b0, hit};
   
 endmodule
 
